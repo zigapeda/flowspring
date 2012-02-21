@@ -33,6 +33,10 @@ public class Balancebar extends JPanel implements MouseListener, MouseMotionList
 		this.add(this.balancebar);
 		this.add(this.balance);
 	}
+	
+	public int getValue() {
+		return this.balancebar.getValue();
+	}
 
 	public void mouseClicked(MouseEvent e) {
 

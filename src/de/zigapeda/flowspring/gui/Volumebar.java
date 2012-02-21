@@ -30,6 +30,10 @@ public class Volumebar extends JPanel implements MouseListener, MouseMotionListe
 		this.add(this.volumebar);
 		this.add(this.volume);
 	}
+	
+	public int getValue() {
+		return this.volumebar.getValue();
+	}
 
 	public void mouseClicked(MouseEvent e) {
 

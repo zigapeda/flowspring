@@ -209,6 +209,11 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 		return this.controlllayout;
 	}
 	
+	public void setBalanceVolume() {
+		Main.getWindow().getPlayercontroller().setGain(this.volumebar.getValue());
+		Main.getWindow().getPlayercontroller().setPan(this.balancebar.getValue());
+	}
+	
 	public void setSearch(String search) {
 		this.searchbar.setText(search);
 		this.searchbar.requestFocus();

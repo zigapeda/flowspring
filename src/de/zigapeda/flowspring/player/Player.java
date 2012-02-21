@@ -2,6 +2,8 @@ package de.zigapeda.flowspring.player;
 
 import java.io.File;
 
+import de.zigapeda.flowspring.Main;
+
 import javazoom.jlgui.basicplayer.BasicController;
 import javazoom.jlgui.basicplayer.BasicPlayer;
 import javazoom.jlgui.basicplayer.BasicPlayerException;
@@ -40,6 +42,7 @@ public class Player {
 				this.control.resume();
 			} else {
 				this.control.play();
+				Main.getWindow().setBalanceVolume();
 			}
 		} catch (BasicPlayerException e) {
 			e.printStackTrace();
@@ -65,6 +68,7 @@ public class Player {
 	public void seek(long bytes) {
         try {
             control.seek(bytes);
+			Main.getWindow().setBalanceVolume();
         } catch (BasicPlayerException ioe) {}
 	}
 	
