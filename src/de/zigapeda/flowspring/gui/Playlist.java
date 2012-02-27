@@ -4,6 +4,8 @@ import java.awt.Component;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
@@ -26,7 +28,7 @@ import de.zigapeda.flowspring.Main;
 import de.zigapeda.flowspring.data.PlaylistTrack;
 import de.zigapeda.flowspring.data.Title;
 
-public class Playlist extends JList<PlaylistTrack> implements ListCellRenderer<PlaylistTrack>, MouseListener {
+public class Playlist extends JList<PlaylistTrack> implements ListCellRenderer<PlaylistTrack>, MouseListener, KeyListener {
 	private static final long	serialVersionUID	= -3606283321945550386L;
 	
 	private DefaultListModel<PlaylistTrack> playlistmodel;
@@ -36,6 +38,7 @@ public class Playlist extends JList<PlaylistTrack> implements ListCellRenderer<P
 		super();
 		this.track = null;
 	    this.playlistmodel = new DefaultListModel<>();
+	    this.addKeyListener(this);
 	    this.setModel(this.playlistmodel);
 		this.setDragEnabled(true);
 		this.setDropMode(DropMode.INSERT);
@@ -343,6 +346,25 @@ public class Playlist extends JList<PlaylistTrack> implements ListCellRenderer<P
 				return false;
 			} catch (IOException ex) {
 				return false;
+			}
+		}
+	}
+
+	public void keyTyped(KeyEvent e) {
+		
+	}
+
+	public void keyPressed(KeyEvent e) {
+		
+	}
+
+	public void keyReleased(KeyEvent e) {
+		if(e.getKeyCode() == KeyEvent.VK_DELETE) {
+			if(this.getSelectedIndex() != -1) {
+				if(this.getSelectedValue() == this.track) {
+					Main.getWindow().getPlayercontroller().stop();
+				}
+				this.playlistmodel.remove(this.getSelectedIndex());
 			}
 		}
 	}
