@@ -37,6 +37,7 @@ import de.zigapeda.flowspring.Main;
 import de.zigapeda.flowspring.controller.Compare;
 import de.zigapeda.flowspring.controller.Settings;
 import de.zigapeda.flowspring.controller.Tagreader;
+import de.zigapeda.flowspring.data.DataNode;
 import de.zigapeda.flowspring.data.ReadTableModel;
 import de.zigapeda.flowspring.data.Title;
 
@@ -162,15 +163,10 @@ public class ReadWindow extends JFrame implements WindowListener, ActionListener
         Connection c = Main.getDatabase();
         try {
 			Statement s = c.createStatement();
-//			MERGE INTO t USING (VALUES(1, 'conference table'), (14, 'sofa'), (5, 'coffee table')) 
-//			   AS vals(x,y) ON t.id = vals.x
-//			   WHEN MATCHED THEN UPDATE SET t.description = vals.y
-//			   WHEN NOT MATCHED THEN INSERT VALUES vals.x, vals.y
 			s.executeUpdate("merge into settings using (values('readwindow.bounds','" + this.getPositionString() + "')) " +
 					"as vals(x,y) on settings.set_name = vals.x " +
 					"when matched then update set settings.set_value = vals.y " +
 					"when not matched then insert values vals.x, vals.y ");
-//			s.executeUpdate("update settings set set_value = '" + this.getPositionString() + "' where set_name = 'readwindow.bounds'");
 			s.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -350,6 +346,8 @@ class ReadFiles extends Thread {
 					}
 					this.parent.setReadtext(i + 1, list.size());
 				}
+				DataNode.refreshMedialib(Main.getWindow().getControlllayout().getTypeOrder().getFirst());
+				Main.getWindow().refreshMedialib();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
