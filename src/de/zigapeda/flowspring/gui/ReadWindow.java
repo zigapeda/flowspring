@@ -70,7 +70,7 @@ public class ReadWindow extends JFrame implements WindowListener, ActionListener
 		directorylayout.setLayout(new GridBagLayout());
 		c.gridx = 0;
 		c.gridy = 0;
-		directorytextfield = new JTextField("D:\\unsortiert\\sonstiges\\zigapeda\\Music\\Covenant\\Brave New World");
+		directorytextfield = new JTextField();
 		directorytextfield.setPreferredSize(new Dimension(400,30));
 		directorylayout.add(directorytextfield,c);
 		c.weightx = 0;
@@ -162,7 +162,15 @@ public class ReadWindow extends JFrame implements WindowListener, ActionListener
         Connection c = Main.getDatabase();
         try {
 			Statement s = c.createStatement();
-			s.executeUpdate("update settings set set_value = '" + this.getPositionString() + "' where set_name = 'readwindow.bounds'");
+//			MERGE INTO t USING (VALUES(1, 'conference table'), (14, 'sofa'), (5, 'coffee table')) 
+//			   AS vals(x,y) ON t.id = vals.x
+//			   WHEN MATCHED THEN UPDATE SET t.description = vals.y
+//			   WHEN NOT MATCHED THEN INSERT VALUES vals.x, vals.y
+			s.executeUpdate("merge into settings using (values('readwindow.bounds','" + this.getPositionString() + "')) " +
+					"as vals(x,y) on settings.set_name = vals.x " +
+					"when matched then update set settings.set_value = vals.y " +
+					"when not matched then insert values vals.x, vals.y ");
+//			s.executeUpdate("update settings set set_value = '" + this.getPositionString() + "' where set_name = 'readwindow.bounds'");
 			s.close();
 		} catch (SQLException e) {
 			e.printStackTrace();

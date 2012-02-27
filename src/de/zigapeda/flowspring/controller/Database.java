@@ -99,9 +99,6 @@ public class Database {
 					");");
 			s.executeUpdate("create table dual (d varchar(1));");
 			s.executeUpdate("insert into dual (d) values ('X');");
-			s.executeUpdate("insert into settings (set_name) values ('readwindow.bounds');");
-			s.executeUpdate("insert into settings (set_name) values ('window.bounds');");
-			s.executeUpdate("insert into settings (set_name) values ('medialib.columns');");
 			s.executeUpdate("create view soundtracks (stk_int_id " +
 					"                        ,stk_alb_id " +
 					"                        ,stk_ttl_id " +
