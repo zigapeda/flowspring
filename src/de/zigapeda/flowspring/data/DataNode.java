@@ -106,9 +106,6 @@ public class DataNode {
 				sort(this.data.getType(), type, this.children, Main.getWindow().getSortIndex(), Main.getWindow().getSortDirection());
 			}
 		}
-		for(DataNode node: this.children) {
-//			System.out.println(node.getData().getTrack() + node.getData().getName());
-		}
         return this.children;
     }
     
@@ -119,12 +116,6 @@ public class DataNode {
 	}
 	
 	private void sort(int parenttype, int childtype, List<DataNode> list, int index, boolean direction) {
-		System.out.println("sort");
-		System.out.println(parenttype);
-		System.out.println(childtype);
-		if(parenttype == TreeRow.Album && childtype == TreeRow.Title) {
-			System.out.println("sort by album");
-		}
 //		getName();		0
 //		getArtist();	1
 //		getAlbum();		2
