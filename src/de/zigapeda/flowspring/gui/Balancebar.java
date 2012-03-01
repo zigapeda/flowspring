@@ -13,6 +13,7 @@ import javax.swing.Painter;
 import javax.swing.UIManager;
 
 import de.zigapeda.flowspring.Main;
+import de.zigapeda.flowspring.controller.Settings;
 
 public class Balancebar extends JPanel implements MouseListener, MouseMotionListener {
 	private static final long serialVersionUID = -1418651840977914483L;
@@ -29,7 +30,12 @@ public class Balancebar extends JPanel implements MouseListener, MouseMotionList
 		this.balancebar.setMaximum(100);
 		this.balancebar.addMouseListener(this);
 		this.balancebar.addMouseMotionListener(this);
-		this.balancebar.setValue(50);
+		String balance = Settings.loadSettings("balance");
+		if(balance != null) {
+			this.balancebar.setValue(Integer.valueOf(balance));
+		} else {
+			this.balancebar.setValue(50);
+		}
 		this.add(this.balancebar);
 		this.add(this.balance);
 	}

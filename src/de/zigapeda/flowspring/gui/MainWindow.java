@@ -470,6 +470,14 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 					"as vals(x,y) on settings.set_name = vals.x " +
 					"when matched then update set settings.set_value = vals.y " +
 					"when not matched then insert values vals.x, vals.y ");
+			s.executeUpdate("merge into settings using (values('volume','" + String.valueOf(this.volumebar.getValue()) + "')) " +
+					"as vals(x,y) on settings.set_name = vals.x " +
+					"when matched then update set settings.set_value = vals.y " +
+					"when not matched then insert values vals.x, vals.y ");
+			s.executeUpdate("merge into settings using (values('balance','" + String.valueOf(this.balancebar.getValue()) + "')) " +
+					"as vals(x,y) on settings.set_name = vals.x " +
+					"when matched then update set settings.set_value = vals.y " +
+					"when not matched then insert values vals.x, vals.y ");
 //			s.executeUpdate("update settings set set_value = '" + this.getPositionString() + "' where set_name = 'window.bounds'");
 //			s.executeUpdate("update settings set set_value = '" + Column.getColumnlistString(Column.getMedialibrarycolumns()) +"' where set_name = 'medialib.columns'");
 			s.executeUpdate("shutdown");

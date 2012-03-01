@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
 import de.zigapeda.flowspring.Main;
+import de.zigapeda.flowspring.controller.Settings;
 
 public class Volumebar extends JPanel implements MouseListener, MouseMotionListener {
 	private static final long serialVersionUID = 4040860927056250732L;
@@ -26,7 +27,12 @@ public class Volumebar extends JPanel implements MouseListener, MouseMotionListe
 		this.volumebar.setMaximum(100);
 		this.volumebar.addMouseListener(this);
 		this.volumebar.addMouseMotionListener(this);
-		this.volumebar.setValue(100);
+		String volume = Settings.loadSettings("volume");
+		if(volume != null) {
+			this.volumebar.setValue(Integer.valueOf(volume));
+		} else {
+			this.volumebar.setValue(100);
+		}
 		this.add(this.volumebar);
 		this.add(this.volume);
 	}
