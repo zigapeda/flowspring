@@ -5,6 +5,8 @@ import java.util.Vector;
 
 import javax.swing.table.TableColumn;
 
+import de.zigapeda.flowspring.gui.treetable.DataModel;
+
 public class Column {
 	private static LinkedList<Column> medialibrary;
 	private TableColumn column;
@@ -59,7 +61,7 @@ public class Column {
 	
 	public static Column getColumnByName(LinkedList<Column> list, String name) {
 		for(Column c: list) {
-			if(name.equals(c.getColumn().getHeaderValue().toString())) {
+			if(name.equals(DataModel.columnNames[c.getColumn().getModelIndex()])){
 				return c;
 			}
 		}
@@ -99,7 +101,7 @@ public class Column {
 			} else {
 				temp = temp + String.valueOf(c.getWidth());
 			}
-			temp = temp + c.getColumn().getHeaderValue().toString() + ",";
+			temp = temp + DataModel.columnNames[c.getColumn().getModelIndex()] + ",";
 		}
 		return temp.substring(0, temp.length()-1);
 	}

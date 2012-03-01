@@ -19,7 +19,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.LinkedList;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
@@ -40,6 +39,7 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import javax.swing.tree.TreePath;
 
 import de.zigapeda.flowspring.Main;
 import de.zigapeda.flowspring.controller.MediaLibraryListener;
@@ -50,6 +50,7 @@ import de.zigapeda.flowspring.data.Title;
 import de.zigapeda.flowspring.gui.treetable.AbstractTreeTableModel;
 import de.zigapeda.flowspring.gui.treetable.DataModel;
 import de.zigapeda.flowspring.gui.treetable.TreeTable;
+import de.zigapeda.flowspring.gui.treetable.TreeTableCellRenderer;
 import de.zigapeda.flowspring.interfaces.TreeRow;
 import de.zigapeda.flowspring.player.PlayerController;
 
@@ -75,7 +76,9 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 	private MedialibraryRenderer medialibraryrenderer;
 	private JSplitPane splitpane;
 	private JPopupMenu medialibrarymenu;
-	private int lastsortindex;
+	private boolean sortdirection;
+	private int sortindex;
+	private int sortcolumn;
 
 	public MainWindow() {
 		super("flowspring");
@@ -220,6 +223,22 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 	}
 	
 	public void refreshMedialib() {
+		LinkedList<TreePath> list = new LinkedList<>();
+		for(int i = 0; i < this.medialibrary.getRowCount(); i++) {
+			if(((TreeTableCellRenderer)this.medialibrary.getCellRenderer(i, 0)).isExpanded(i)) {
+				list.add(this.medialibrary.getPathAt(i));
+			}
+		}
+		this.searchbar.setText("");
+		this.medialibrarymodel = new DataModel(DataNode.getLibrary());
+		this.medialibrary.setModel(this.medialibrarymodel);
+		this.setColumns();
+		for(TreePath path: list) {
+			this.medialibrary.getTree().expandPath(path);
+		}
+	}
+	
+	public void refreshMedialibAfterRegroup() {
 		this.searchbar.setText("");
 		this.medialibrarymodel = new DataModel(DataNode.getLibrary());
 		this.medialibrary.setModel(this.medialibrarymodel);
@@ -251,7 +270,7 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 						for(String s: mca) {
 							TableColumn tc = null;
 							for(Column c: list) {
-								if(c.getColumn().getHeaderValue().toString().equals(s.substring(5))) {
+								if(DataModel.columnNames[c.getColumn().getModelIndex()].equals(s.substring(5))) {
 									tc = c.getColumn();
 									break;
 								}
@@ -293,7 +312,7 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 			if(c.isVisible()) {
 				c.getColumn().setPreferredWidth(c.getWidth());
 				this.medialibrarycolumns.addColumn(c.getColumn());
-				if(!c.getColumn().getHeaderValue().toString().equals("Name")) {
+				if(c.getColumn().getModelIndex() != 0) {
 					c.getColumn().setCellRenderer(this.medialibraryrenderer);
 				}
 			}
@@ -359,7 +378,7 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 	}
 
 	public void columnMoved(TableColumnModelEvent e) {
-		if(this.medialibrarycolumns.getColumn(0).getHeaderValue().toString().equals("Name")) {
+		if(this.medialibrarycolumns.getColumn(0).getModelIndex() == 0) {
 			LinkedList<Column> list = new LinkedList<>();
 			for(int i = 0; i < this.medialibrarycolumns.getColumnCount(); i++) {
 				list.add(new Column(this.medialibrarycolumns.getColumn(i), this.medialibrarycolumns.getColumn(i).getWidth(), true));
@@ -480,124 +499,40 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 		
 	}
 	
-	private void change(List<DataNode> list, int i) {
-		DataNode change = list.get(i);
-		list.set(i, list.get(i+1));
-		list.set(i+1,change);
+	public int getSortIndex() {
+		return this.sortindex;
 	}
 	
-	private void sort(int index) {
-//		getName();		0
-//		getArtist();	1
-//		getAlbum();		2
-//		getGenre();		3
-//		getTrack();		4
-//		getYear();		5
-//		getDuration();	6
-//		getComment();	7
-//		getRating();	8	
-//		getPlaycount();	9
-		List<DataNode> list = DataNode.getLibrary().getChildren();
-		for(int i = 0; i < list.size() - 1; i++) {
-			if(index != 6) {
-				String s1 = new String();
-				String s2 = new String();
-				switch(index) {
-					case 0:
-						s1 = list.get(i).getData().getName();
-						s2 = list.get(i+1).getData().getName();
-						break;
-					case 1:
-						s1 = list.get(i).getData().getArtist();
-						s2 = list.get(i+1).getData().getArtist();
-						break;
-					case 2:
-						s1 = list.get(i).getData().getAlbum();
-						s2 = list.get(i+1).getData().getAlbum();
-						break;
-					case 3:
-						s1 = list.get(i).getData().getGenre();
-						s2 = list.get(i+1).getData().getGenre();
-						break;
-					case 4:
-						s1 = list.get(i).getData().getTrack();
-						s2 = list.get(i+1).getData().getTrack();
-						break;
-					case 5:
-						s1 = list.get(i).getData().getYear();
-						s2 = list.get(i+1).getData().getYear();
-						break;
-					case 7:
-						s1 = list.get(i).getData().getComment();
-						s2 = list.get(i+1).getData().getComment();
-						break;
-					case 8:
-						s1 = list.get(i).getData().getRating();
-						s2 = list.get(i+1).getData().getRating();
-						break;
-					case 9:
-						s1 = list.get(i).getData().getPlaycount();
-						s2 = list.get(i+1).getData().getPlaycount();
-						break;
-				}
-				if(index == this.lastsortindex) {
-					if(s1.compareToIgnoreCase(s2) > 0) {
-						change(list,i);
-						i = i - 2;
-						if(i < -1) {
-							i = -1;
-						}
-					}
-				} else {
-					if(s1.compareToIgnoreCase(s2) < 0) {
-						change(list,i);
-						i = i - 2;
-						if(i < -1) {
-							i = -1;
-						}
-					}
-				}
-			} else {
-				if(index == this.lastsortindex) {
-					if(list.get(i).getData().getDuration().intValue() > list.get(i+1).getData().getDuration().intValue()) {
-						change(list,i);
-						i = i - 2;
-						if(i < -1) {
-							i = -1;
-						}
-					}
-				} else {
-					if(list.get(i).getData().getDuration().intValue() < list.get(i+1).getData().getDuration().intValue()) {
-						change(list,i);
-						i = i - 2;
-						if(i < -1) {
-							i = -1;
-						}
-					}
-				}
-			}
-		}
-		if(index == this.lastsortindex) {
-			this.lastsortindex = -1;
-		} else {
-			this.lastsortindex = index;
-		}
+	public boolean getSortDirection() {
+		return this.sortdirection;
 	}
-
+	
 	public void mouseClicked(MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
 			TableColumnModel cm = ((JTableHeader)e.getSource()).getColumnModel();
-			int index = cm.getColumnIndexAtX(e.getX());
-			index = cm.getColumn(index).getModelIndex();
-			this.sort(index);
+			int colindex = cm.getColumnIndexAtX(e.getX());
+			int modindex = cm.getColumn(colindex).getModelIndex();
+			this.medialibrarycolumns.getColumn(this.sortcolumn).setHeaderValue(DataModel.columnNames[this.sortindex]);
+			if(modindex == this.sortindex) {
+				this.sortdirection = !this.sortdirection;
+			} else {
+				this.sortcolumn = colindex;
+				this.sortindex = modindex;
+				this.sortdirection = false;
+			}
+			if(this.sortdirection) {
+				this.medialibrarycolumns.getColumn(colindex).setHeaderValue(DataModel.columnNames[modindex] + "   ▼");
+			} else {
+				this.medialibrarycolumns.getColumn(colindex).setHeaderValue(DataModel.columnNames[modindex] + "   ▲");
+			}
 			this.refreshMedialib();
 		} else if(e.getButton() == MouseEvent.BUTTON3) {
 			this.columnmenu.removeAll();
 			LinkedList<Column> list = Column.getMedialibrarycolumns();
 			if(list != null) {
 				for(Column c: list) {
-					if(!c.getColumn().getHeaderValue().toString().equals("Name")) {
-						this.columnmenu.add(new JCheckBoxMenuItem(c.getColumn().getHeaderValue().toString(), c.isVisible())).addActionListener(this);
+					if(c.getColumn().getModelIndex() != 0) {
+						this.columnmenu.add(new JCheckBoxMenuItem(DataModel.columnNames[c.getColumn().getModelIndex()], c.isVisible())).addActionListener(this);
 					}
 				}
 			}

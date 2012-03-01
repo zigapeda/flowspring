@@ -58,7 +58,7 @@ public class Controlllayout extends JPanel  implements ItemListener {
 					}
 				}
 				DataNode.refreshMedialib(((TreeRow.Type)((JComboBox<TreeRow.Type>)this.getComponent(0)).getSelectedItem()).getType());
-				Main.getWindow().refreshMedialib();
+				Main.getWindow().refreshMedialibAfterRegroup();
 				this.repaint();
 			}
 		} else if(e.getStateChange() == ItemEvent.DESELECTED) {

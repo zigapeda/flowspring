@@ -5,7 +5,7 @@ import de.zigapeda.flowspring.interfaces.TreeRow;
  
 public class DataModel extends AbstractTreeTableModel {
     // Spalten Name.
-    static protected String[] columnNames = { "Name", "Artist", "Album", "Genre", "Track", "Year", "Duration", "Comment", "Rating", "Playcount" };
+    static public String[] columnNames = { "Name", "Artist", "Album", "Genre", "Track", "Year", "Duration", "Comment", "Rating", "Playcount" };
  
     // Spalten Typen.
     static protected Class<?>[] columnTypes = { TreeTableModel.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class };

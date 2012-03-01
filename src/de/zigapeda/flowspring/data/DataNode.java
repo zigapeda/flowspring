@@ -56,35 +56,11 @@ public class DataNode {
     }
  
     public List<DataNode> getChildren() {
+    	Integer type = null;
     	if(this.children.size() == 0) {
-//	    	if(this.data.getType() == TreeRow.Interpret) {
-//	    		Connection c = Main.getDatabase();
-//	            try {
-//	    			Statement s = c.createStatement();
-//	    			ResultSet r = s.executeQuery("select alb_name from albums, interprets where alb_int_id = int_id and int_name = '" + this.data.getArtist() + "';");
-//	    	        while(r.next()) {
-//	    				this.children.add(new DataNode(new Album(r.getString(1)),null));
-//	    			}
-//	    		} catch (SQLException e) {
-//	    			e.printStackTrace();
-//	    		}
-//	    	} else if(this.data.getType() == TreeRow.Album) {
-//	    		Connection c = Main.getDatabase();
-//	            try {
-//	    			Statement s = c.createStatement();
-//	    			ResultSet r = s.executeQuery("select ttl_name from titles, albums where ttl_alb_id = alb_id and alb_name = '" + this.data.getAlbum() + "';");
-//	    	        while(r.next()) {
-//	    				this.children.add(new DataNode(new Title(r.getString(1)),null));
-//	    			}
-//	    		} catch (SQLException e) {
-//	    			e.printStackTrace();
-//	    		}
-//	    	} else if(this.data.getType() == TreeRow.Title) {
-//	    		return null;
-//	    	}
     		if(this.data.getType() != TreeRow.Title) {
     			if(Main.getWindow() != null) {
-    				Integer type = Main.getWindow().getControlllayout().getNextType(this.data.getType());
+    				type = Main.getWindow().getControlllayout().getNextType(this.data.getType());
     				if(type != null) {
 	    				switch(type) {
 	    					case TreeRow.Title:
@@ -122,8 +98,124 @@ public class DataNode {
     			}
     		}
     	}
+		if(Main.getWindow() != null) {
+			if(type == null) {
+				sort(this.data.getType(), -1, this.children, Main.getWindow().getSortIndex(), Main.getWindow().getSortDirection());
+			} else {
+				sort(this.data.getType(), type, this.children, Main.getWindow().getSortIndex(), Main.getWindow().getSortDirection());
+			}
+		}
         return this.children;
     }
+    
+	private void change(List<DataNode> list, int i) {
+		DataNode change = list.get(i);
+		list.set(i, list.get(i+1));
+		list.set(i+1,change);
+	}
+	
+	private void sort(int parenttype, int childtype, List<DataNode> list, int index, boolean direction) {
+//		getName();		0
+//		getArtist();	1
+//		getAlbum();		2
+//		getGenre();		3
+//		getTrack();		4
+//		getYear();		5
+//		getDuration();	6
+//		getComment();	7
+//		getRating();	8	
+//		getPlaycount();	9
+		for(int i = 0; i < list.size() - 1; i++) {
+			String s1 = null;
+			String s2 = null;
+			int i1 = 0;
+			int i2 = 0;
+			if(parenttype == TreeRow.Album && childtype == TreeRow.Title) {
+				i1 = Integer.valueOf(list.get(i).getData().getTrack());
+				i2 = Integer.valueOf(list.get(i+1).getData().getTrack());
+			} else {
+				switch(index) {
+					case 0:
+						s1 = list.get(i).getData().getName();
+						s2 = list.get(i+1).getData().getName();
+						break;
+					case 1:
+						s1 = list.get(i).getData().getArtist();
+						s2 = list.get(i+1).getData().getArtist();
+						break;
+					case 2:
+						s1 = list.get(i).getData().getAlbum();
+						s2 = list.get(i+1).getData().getAlbum();
+						break;
+					case 3:
+						s1 = list.get(i).getData().getGenre();
+						s2 = list.get(i+1).getData().getGenre();
+						break;
+					case 4:
+						s1 = list.get(i).getData().getTrack();
+						s2 = list.get(i+1).getData().getTrack();
+						break;
+					case 5:
+						s1 = list.get(i).getData().getYear();
+						s2 = list.get(i+1).getData().getYear();
+						break;
+					case 6:
+						i1 = list.get(i).getData().getDuration().intValue();
+						i2 = list.get(i+1).getData().getDuration().intValue();
+					case 7:
+						s1 = list.get(i).getData().getComment();
+						s2 = list.get(i+1).getData().getComment();
+						break;
+					case 8:
+						s1 = list.get(i).getData().getRating();
+						s2 = list.get(i+1).getData().getRating();
+						break;
+					case 9:
+						s1 = list.get(i).getData().getPlaycount();
+						s2 = list.get(i+1).getData().getPlaycount();
+						break;
+				}
+			}
+			if(s1 != null) {
+				if(direction == false) {
+					if(s1.compareToIgnoreCase(s2) > 0) {
+						change(list,i);
+						i = i - 2;
+						if(i < -1) {
+							i = -1;
+						}
+					}
+				} else {
+					if(s1.compareToIgnoreCase(s2) < 0) {
+						change(list,i);
+						i = i - 2;
+						if(i < -1) {
+							i = -1;
+						}
+					}
+				}
+			} else {
+				if(direction == false) {
+					if(i1 > i2) {
+						change(list,i);
+						i = i - 2;
+						if(i < -1) {
+							i = -1;
+						}
+					}
+				} else {
+					if(i1 < i2) {
+						change(list,i);
+						i = i - 2;
+						if(i < -1) {
+							i = -1;
+						}
+					}
+				}
+			}
+		}
+	}
+
     
     public void setChildren(List<DataNode> children) {
     	this.children = children;

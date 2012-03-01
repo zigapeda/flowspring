@@ -59,6 +59,11 @@ public class TreeTable extends JTable {
     	return tree;
     }
     
+    public TreePath getPathAt(int row) {
+    	TreePath treePath = tree.getPathForRow(row);
+    	return treePath;
+    }
+    
     public TreeRow getValueAt(int row) {
     	TreePath treePath = tree.getPathForRow(row);
     	TreeRow data = ((DataNode)treePath.getLastPathComponent()).getData();
