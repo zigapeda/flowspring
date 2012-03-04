@@ -165,6 +165,42 @@ public class Playlist extends JList<PlaylistTrack> implements ListCellRenderer<P
 	public void mouseExited(MouseEvent e) {
 		
 	}
+
+	public void keyTyped(KeyEvent e) {
+		
+	}
+
+	public void keyPressed(KeyEvent e) {
+		
+	}
+
+	public void keyReleased(KeyEvent e) {
+		if(e.getKeyCode() == KeyEvent.VK_DELETE) {
+			if(this.getSelectedIndex() != -1) {
+				if(this.getSelectedValue() == this.track) {
+					Main.getWindow().getPlayercontroller().stop();
+				}
+				int sel = this.getSelectedIndex();
+				this.playlistmodel.remove(this.getSelectedIndex());
+				if(this.playlistmodel.getSize() != 0) {
+					if(this.playlistmodel.getSize() > sel) {
+						this.setSelectedIndex(sel);
+					} else {
+						this.setSelectedIndex(sel - 1);
+					}
+				}
+			}
+		} else if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+			if(this.getSelectedIndex() != -1) {
+				if(this.track != this.getSelectedValue()) {
+					Main.getWindow().getPlayercontroller().stop();
+					this.track = this.getSelectedValue();
+					Main.getWindow().getPlayercontroller().play();
+					this.repaint();
+				}
+			}
+		}
+	}
 	
 	static class ListMoveDataFlavor extends DataFlavor {
 		
@@ -346,25 +382,6 @@ public class Playlist extends JList<PlaylistTrack> implements ListCellRenderer<P
 				return false;
 			} catch (IOException ex) {
 				return false;
-			}
-		}
-	}
-
-	public void keyTyped(KeyEvent e) {
-		
-	}
-
-	public void keyPressed(KeyEvent e) {
-		
-	}
-
-	public void keyReleased(KeyEvent e) {
-		if(e.getKeyCode() == KeyEvent.VK_DELETE) {
-			if(this.getSelectedIndex() != -1) {
-				if(this.getSelectedValue() == this.track) {
-					Main.getWindow().getPlayercontroller().stop();
-				}
-				this.playlistmodel.remove(this.getSelectedIndex());
 			}
 		}
 	}
