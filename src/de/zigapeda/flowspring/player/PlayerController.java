@@ -35,6 +35,7 @@ public class PlayerController implements BasicPlayerListener {
 			} else {
 				Main.getWindow().setPlaybuttonpause(false);
 			}
+			Main.getWindow().setTitle("flowspring - [" + plt.toString() + "]");
 		} else if(this.player.getStatus() == BasicPlayer.PLAYING) {
 			this.player.pause();
 			Main.getWindow().setPlaybuttonpause(false);
@@ -47,6 +48,7 @@ public class PlayerController implements BasicPlayerListener {
 	public void stop() {
 		this.player.stop();
 		Main.getWindow().setPlaybuttonpause(false);
+		Main.getWindow().setTitle("flowspring");
 	}
 	
 	public boolean isStopped() {
