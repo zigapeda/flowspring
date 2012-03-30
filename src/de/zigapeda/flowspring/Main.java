@@ -27,6 +27,7 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.Painter;
 import javax.swing.UIManager;
 
@@ -50,6 +51,7 @@ public class Main {
 	private static Database database;
 	private static MainWindow window;
 	private static ReadWindow readwindow;
+	private static JFrame ontopwindow;
 	private static String pid;
 	private static Splash splash;
 	private static String appdata;
@@ -59,10 +61,10 @@ public class Main {
 			Main.showSplash();
 			Main.setupAppdataDir();
 	        Main.setupLookandfeel();
-//			new File("flowspring.lck").delete();
-//			new File("flowspring.log").delete();
-//			new File("flowspring.properties").delete();
-//			new File("flowspring.script").delete();
+//			new File(appdata + "flowspring.lck").delete();
+//			new File(appdata + "flowspring.log").delete();
+//			new File(appdata + "flowspring.properties").delete();
+//			new File(appdata + "flowspring.script").delete();
 	        Main.setupApplication(args);
 			Main.setupMediakeylistener();
 			Main.window.setVisible(true);
@@ -428,6 +430,19 @@ public class Main {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public static JFrame getOntopwindow() {
+		if(ontopwindow != null) {
+			if(ontopwindow.isShowing() == false) {
+				ontopwindow = null;
+			}
+		}
+		return ontopwindow;
+	}
+
+	public static void setOntopwindow(JFrame ontopwindow) {
+		Main.ontopwindow = ontopwindow;
 	}
 
 }
