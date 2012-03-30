@@ -3,6 +3,7 @@ package de.zigapeda.flowspring.gui;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -71,11 +72,19 @@ public class ReadWindow extends JFrame implements WindowListener, ActionListener
 		directorylayout.setLayout(new GridBagLayout());
 		c.gridx = 0;
 		c.gridy = 0;
-		directorytextfield = new JTextField(Settings.loadSettings("readwindow.path"));
-		directorytextfield.setPreferredSize(new Dimension(400,30));
+		c.weightx = 1;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		String path = Settings.loadSettings("readwindow.path");
+		if(path == null) {
+			path = Settings.loadSettings("defaultdir");
+		} else if(path.length() == 0) {
+			path = Settings.loadSettings("defaultdir");
+		}
+		directorytextfield = new JTextField(path);
 		directorylayout.add(directorytextfield,c);
 		c.weightx = 0;
 		c.gridx = 1;
+		c.fill = GridBagConstraints.NONE;
 		directorybrowse = new JButton("Browse...");
 		directorybrowse.addActionListener(this);
 		directorylayout.add(directorybrowse,c);
@@ -87,6 +96,7 @@ public class ReadWindow extends JFrame implements WindowListener, ActionListener
 		c.gridy = 0;
 		c.anchor = GridBagConstraints.WEST;
 		c.weightx = 1;
+		c.fill = GridBagConstraints.HORIZONTAL;
 		this.add(directorylayout,c);
 		c.gridy = 1;
 		c.fill = GridBagConstraints.BOTH;
@@ -133,7 +143,8 @@ public class ReadWindow extends JFrame implements WindowListener, ActionListener
         		this.setExtendedState(Integer.valueOf(wba[4]));
         	}
         } else {
-        	this.setSize(800,600);
+    		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
+    		this.setBounds(screensize.width/2 - 400, screensize.height/2 - 300, 800, 600);
         }
         this.setMinimumSize(new Dimension(800, 600));
 		this.setVisible(true);
@@ -195,7 +206,6 @@ public class ReadWindow extends JFrame implements WindowListener, ActionListener
 
 	public void actionPerformed(ActionEvent evt) {
 		if(evt.getSource() == this.directorybrowse) {
-			
 			File file = new File(this.directorytextfield.getText());
 			if(file.exists()) {
 				if(file.isDirectory()) {

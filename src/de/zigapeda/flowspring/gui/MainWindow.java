@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -113,7 +114,8 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
         	}
         	dividerlocation = Integer.valueOf(wba[5]);
         } else {
-        	this.setSize(800,600);
+    		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
+    		this.setBounds(screensize.width/2 - 400, screensize.height/2 - 300, 800, 600);
         }
         this.setMinimumSize(new Dimension(800, 600));
         splitpane.setDividerLocation(dividerlocation);
@@ -500,7 +502,9 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 	}
 
 	public void windowActivated(WindowEvent e) {
-		
+		if(Main.getOntopwindow() != null) {
+			Main.getOntopwindow().requestFocus();
+		}
 	}
 
 	public void windowDeactivated(WindowEvent e) {
