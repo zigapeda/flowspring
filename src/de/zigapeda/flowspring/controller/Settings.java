@@ -26,6 +26,20 @@ public class Settings {
         return null;
 	}
 	
+	public static void saveSettings(String key, String value) {
+        Connection c = Main.getDatabase();
+        try {
+			Statement s = c.createStatement();
+			s.executeUpdate("merge into settings using (values('" + key + "','" + value + "')) " +
+					"as vals(x,y) on settings.set_name = vals.x " +
+					"when matched then update set settings.set_value = vals.y " +
+					"when not matched then insert values vals.x, vals.y ");
+			s.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static void firstStart() {
 		int opt = JOptionPane.showConfirmDialog(null,
 				"This is the first programm start. Do you want to setup base settings?", "First start detected",

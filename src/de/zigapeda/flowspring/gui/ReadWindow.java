@@ -20,7 +20,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
@@ -171,17 +170,7 @@ public class ReadWindow extends JFrame implements WindowListener, ActionListener
 	}
 
 	public void windowClosing(WindowEvent evt) {
-        Connection c = Main.getDatabase();
-        try {
-			Statement s = c.createStatement();
-			s.executeUpdate("merge into settings using (values('readwindow.bounds','" + this.getPositionString() + "')) " +
-					"as vals(x,y) on settings.set_name = vals.x " +
-					"when matched then update set settings.set_value = vals.y " +
-					"when not matched then insert values vals.x, vals.y ");
-			s.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		Settings.saveSettings("readwindow.bounds", this.getPositionString());
 	}
 
 	public void windowClosed(WindowEvent e) {
@@ -244,15 +233,7 @@ public class ReadWindow extends JFrame implements WindowListener, ActionListener
 				if(tmp.exists()) {
 					if(tmp.isDirectory()) {
 						this.path = tmp.getAbsolutePath();
-				        Connection c = Main.getDatabase();
-				        try {
-							Statement s = c.createStatement();
-							s.executeUpdate("merge into settings using (values('readwindow.path','" + this.path + "')) " +
-									"as vals(x,y) on settings.set_name = vals.x " +
-									"when matched then update set settings.set_value = vals.y " +
-									"when not matched then insert values vals.x, vals.y ");
-							s.close();
-						} catch (SQLException e) {}
+						Settings.saveSettings("readwindow.path", this.path);
 						fw = new FileWalker(path, this);
 						fw.start();
 						this.directorystart.setText("Stop");

@@ -11,9 +11,6 @@ import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
@@ -23,6 +20,7 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 import de.zigapeda.flowspring.Main;
+import de.zigapeda.flowspring.controller.Settings;
 
 public class FirstStartConfiguration extends JFrame implements ActionListener, WindowListener {
 	private static final long serialVersionUID = 4153028281541084094L;
@@ -119,25 +117,9 @@ public class FirstStartConfiguration extends JFrame implements ActionListener, W
 	}
 	
 	private void save() {
-        Connection c = Main.getDatabase();
-        try {
-			Statement s = c.createStatement();
-			s.executeUpdate("merge into settings using (values('defaultdir','" + this.getDefaultDirectory() + "')) " +
-					"as vals(x,y) on settings.set_name = vals.x " +
-					"when matched then update set settings.set_value = vals.y " +
-					"when not matched then insert values vals.x, vals.y ");
-			s.executeUpdate("merge into settings using (values('dirstructure','" + this.getDirectoryStructure() + "')) " +
-					"as vals(x,y) on settings.set_name = vals.x " +
-					"when matched then update set settings.set_value = vals.y " +
-					"when not matched then insert values vals.x, vals.y ");
-			s.executeUpdate("merge into settings using (values('filestructure','" + this.getFileStructure() + "')) " +
-					"as vals(x,y) on settings.set_name = vals.x " +
-					"when matched then update set settings.set_value = vals.y " +
-					"when not matched then insert values vals.x, vals.y ");
-			s.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		Settings.saveSettings("defaultdir", this.getDefaultDirectory());
+		Settings.saveSettings("dirstructure", this.getDirectoryStructure());
+		Settings.saveSettings("filestructure", this.getFileStructure());
 	}
 
 	public void actionPerformed(ActionEvent e) {
