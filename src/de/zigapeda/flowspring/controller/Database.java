@@ -18,6 +18,7 @@ public class Database {
 				s.execute("select * from settings");
 			} catch(SQLException e) {
 				createDatabase();
+				Settings.firstStart();
 			}
 			s = this.connection.createStatement();
 		} catch (SQLException e) {
