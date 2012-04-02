@@ -306,6 +306,7 @@ public class ReadWindow extends JFrame implements WindowListener, ActionListener
 class ReadFiles extends Thread {
 	private JButton button;
 	private ReadWindow parent;
+	private Connection c;
 	
 	public ReadFiles(JButton button, ReadWindow parent) {
 		this.button = button;
@@ -314,34 +315,38 @@ class ReadFiles extends Thread {
 	
 	public void run() {
 		if(this.parent.getReadtablemodel().getRowCount() > 0) {
-			Connection c = Main.getDatabase();
+			this.c = Main.getDatabase();
 			LinkedList<Title> list = this.parent.getReadtablemodel().getData();
-			try {
-				for(int i = 0; i < list.size(); i++) {
-					Title t = list.get(i);
-					if(this.button == this.parent.getReadfiles()) {
-						PreparedStatement s = c.prepareStatement("call inserttitle(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-						this.setParameters(s, t.getArtist(), Compare.getComparableString(t.getArtist()),
-								t.getAlbum(), Compare.getComparableString(t.getAlbum()),
-								t.getName(), Compare.getComparableString(t.getName()),
-								t.getComment(), Compare.getMD5(t.getComment()),
-								t.getGenre(), Compare.getComparableString(t.getGenre()),
-								getInt(t.getTrack()), getInt(t.getYear()), t.getInt(),
-								getInt(t.getRating()), getInt(t.getPlaycount()), t.getPath());
-						s.execute();
-						s.close();
-					} else if (this.button == this.parent.getCopyfiles()) {
-						
-					} else if (this.button == this.parent.getMovefiles()) {
+			for(int i = 0; i < list.size(); i++) {
+				Title t = list.get(i);
+				if(this.button == this.parent.getReadfiles()) {
+					this.insertTitle(t.getArtist(), t.getAlbum(), t.getName(), t.getComment(), t.getGenre(), t.getTrack(), t.getYear(), t.getInt(), t.getRating(), t.getPlaycount(), t.getPath());
+				} else if (this.button == this.parent.getCopyfiles()) {
+					
+				} else if (this.button == this.parent.getMovefiles()) {
 
-					}
-					this.parent.setReadtext(i + 1, list.size());
 				}
-				DataNode.refreshMedialib(Main.getWindow().getControlllayout().getTypeOrder().getFirst());
-				Main.getWindow().refreshMedialib();
-			} catch (SQLException e) {
-				e.printStackTrace();
+				this.parent.setReadtext(i + 1, list.size());
 			}
+			DataNode.refreshMedialib(Main.getWindow().getControlllayout().getTypeOrder().getFirst());
+			Main.getWindow().refreshMedialib();
+		}
+	}
+	
+	private void insertTitle(String interpret, String album, String name, String comment, String genre, String track, String year, Integer duration, String rating, String playcount, String path) {
+		try {
+			PreparedStatement s = c.prepareStatement("call inserttitle(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+			this.setParameters(s, interpret, Compare.getComparableString(interpret),
+					album, Compare.getComparableString(album),
+					name, Compare.getComparableString(name),
+					comment, Compare.getMD5(comment),
+					genre, Compare.getComparableString(genre),
+					getInt(track), getInt(year), duration,
+					getInt(rating), getInt(playcount), path);
+			s.execute();
+			s.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 	}
 	
