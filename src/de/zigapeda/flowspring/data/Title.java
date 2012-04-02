@@ -194,6 +194,20 @@ public class Title implements TreeRow {
         try {
 			Statement s = c.createStatement();
 			s.executeUpdate("update titles set ttl_playcount = ttl_playcount + 1 where ttl_id = " + String.valueOf(id));
+			s.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void changePath(int id, String path) {
+        Connection c = Main.getDatabase();
+        try {
+			PreparedStatement s = c.prepareStatement("update titles set ttl_path = ? where ttl_id = ? ");
+			s.setString(1, path);
+			s.setInt(2, id);
+			s.execute();
+			s.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

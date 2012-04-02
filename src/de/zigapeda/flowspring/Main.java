@@ -61,10 +61,10 @@ public class Main {
 			Main.showSplash();
 			Main.setupAppdataDir();
 	        Main.setupLookandfeel();
-//			new File(appdata + "flowspring.lck").delete();
-//			new File(appdata + "flowspring.log").delete();
-//			new File(appdata + "flowspring.properties").delete();
-//			new File(appdata + "flowspring.script").delete();
+			new File(appdata + "flowspring.lck").delete();
+			new File(appdata + "flowspring.log").delete();
+			new File(appdata + "flowspring.properties").delete();
+			new File(appdata + "flowspring.script").delete();
 	        Main.setupApplication(args);
 			Main.setupMediakeylistener();
 			Main.window.setVisible(true);

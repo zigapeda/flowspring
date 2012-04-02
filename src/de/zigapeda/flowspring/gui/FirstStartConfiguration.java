@@ -99,20 +99,20 @@ public class FirstStartConfiguration extends JFrame implements ActionListener, W
 	private String getDefaultDirectory() {
 		File f = new File(this.directorytextfield.getText());
 		if(f.isDirectory() == true) {
-			return f.getAbsolutePath();
+			return f.getAbsolutePath() + "/";
 		} else if(f.mkdirs() == true) {
-			return f.getAbsolutePath();
+			return f.getAbsolutePath() + "/";
 		}
-		return "";
+		return null;
 	}
 	
 	private String getDirectoryStructure() {
-		String dirstructure = this.directorystructure.getText();
+		String dirstructure = this.directorystructure.getText().toLowerCase();
 		return dirstructure;
 	}
 	
 	private String getFileStructure() {
-		String filestructure = this.filestructure.getText();
+		String filestructure = this.filestructure.getText().toLowerCase();
 		return filestructure;
 	}
 	
