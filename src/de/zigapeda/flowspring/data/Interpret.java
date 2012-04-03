@@ -144,9 +144,9 @@ public class Interpret implements TreeRow {
 			Statement s = c.createStatement();
 			ResultSet r = null;
 			if(stmt != null) {
-				r = s.executeQuery("select stk_int_id, stk_interpret, count(distinct stk_alb_id), group_concat(distinct stk_genre order by stk_genre separator ', '), min(stk_comment), count(stk_track), min(stk_year)||' - '||max(stk_year), sum(stk_duration), avg(stk_rating), sum(stk_playcount)  from soundtracks where " + stmt + " group by stk_int_id, stk_interpret order by stk_interpret");
+				r = s.executeQuery("select stk_int_id, stk_interpret, count(distinct stk_alb_id), group_concat(distinct stk_genre order by stk_genre separator ', '), min(stk_comment), count(stk_track), case when min(stk_year) = max(stk_year) then min(stk_year)||'' else min(stk_year)||' - '||max(stk_year) end, sum(stk_duration), avg(stk_rating), sum(stk_playcount)  from soundtracks where " + stmt + " group by stk_int_id, stk_interpret order by stk_interpret");
 			} else {
-				r = s.executeQuery("select stk_int_id, stk_interpret, count(distinct stk_alb_id), group_concat(distinct stk_genre order by stk_genre separator ', '), min(stk_comment), count(stk_track), min(stk_year)||' - '||max(stk_year), sum(stk_duration), avg(stk_rating), sum(stk_playcount)  from soundtracks group by stk_int_id, stk_interpret order by stk_interpret");
+				r = s.executeQuery("select stk_int_id, stk_interpret, count(distinct stk_alb_id), group_concat(distinct stk_genre order by stk_genre separator ', '), min(stk_comment), count(stk_track), case when min(stk_year) = max(stk_year) then min(stk_year)||'' else min(stk_year)||' - '||max(stk_year) end, sum(stk_duration), avg(stk_rating), sum(stk_playcount)  from soundtracks group by stk_int_id, stk_interpret order by stk_interpret");
 			}
 			while(r.next()) {
 				String gre = r.getString(4);
