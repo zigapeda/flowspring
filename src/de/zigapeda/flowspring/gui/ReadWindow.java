@@ -342,7 +342,8 @@ class ReadFiles extends Thread {
 						if(id > -1) {
 							try {
 								File newfile = new File(path);
-								newfile.createNewFile();
+								newfile.getParentFile().mkdirs();
+//								newfile.createNewFile();
 								Files.copy(new File(t.getPath()).toPath(), newfile.toPath());
 								Title.changePath(id, path);
 							} catch(IOException e) {
@@ -405,7 +406,7 @@ class ReadFiles extends Thread {
 					comment, Compare.getMD5(comment),
 					genre, Compare.getComparableString(genre),
 					getInt(track), getInt(year), duration,
-					getInt(rating), getInt(playcount), path);
+					getIntNN(rating), getIntNN(playcount), path);
 			s.registerOutParameter(17, Types.INTEGER);
 			s.registerOutParameter(18, Types.INTEGER);			
 			s.execute();
@@ -435,6 +436,16 @@ class ReadFiles extends Thread {
 	}
 	
 	private Integer getInt(String string) {
+		if(string != null) {
+			try {
+				return Integer.valueOf(string);
+			} catch (NumberFormatException e) {
+			}
+		}
+		return null;
+	}
+	
+	private Integer getIntNN(String string) {
 		if(string != null) {
 			try {
 				return Integer.valueOf(string);
