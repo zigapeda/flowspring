@@ -226,6 +226,7 @@ public class Database {
 					"    set o_id = ttlid;" +
 					"  else " +
 					"    set status = status + 32;" +
+					"    set o_id = ttlid;" +
 					"    select ttl_id into ttlid from titles where ttl_path = i_path;" +
 					"    if(ttlid is not null) then" +
 					"      set status = status + 64;" +
