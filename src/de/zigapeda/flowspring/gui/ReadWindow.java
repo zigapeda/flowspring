@@ -343,7 +343,6 @@ class ReadFiles extends Thread {
 							try {
 								File newfile = new File(path);
 								newfile.getParentFile().mkdirs();
-//								newfile.createNewFile();
 								Files.copy(new File(t.getPath()).toPath(), newfile.toPath());
 								Title.changePath(id, path);
 							} catch(IOException e) {
@@ -357,7 +356,9 @@ class ReadFiles extends Thread {
 						int id = insertTitle(t);
 						if(id > -1) {
 							try {
-								Files.move(new File(t.getPath()).toPath(), new File(path).toPath());
+								File newfile = new File(path);
+								newfile.getParentFile().mkdirs();
+								Files.move(new File(t.getPath()).toPath(), newfile.toPath());
 								Title.changePath(id, path);
 							} catch(IOException e) {
 								e.printStackTrace();
@@ -377,7 +378,7 @@ class ReadFiles extends Thread {
 		if((status[0] & 32) == 32) {
 			if((status[0] & 64) == 0) {
 				if(this.parent.isAvoidDoubles() == true) {
-					//MD5 checken
+					//check MD5
 				} else {
 					String newname;
 					do {
@@ -395,6 +396,22 @@ class ReadFiles extends Thread {
 		return status[1];
 	}
 	
+	/**
+	 * Try to insert the Title into the database by checking Interpret, Album, Genre and Comment
+	 * if they exists and create them if not.
+	 * 
+	 * @return an array with two integers, first one is the status, second one is the new titleid
+	 * status is a binary switch with values
+	 * <ul>
+	 * <li>1  = new Interpret</li>
+	 * <li>2  = new Album</li>
+	 * <li>4  = new Genre</li>
+	 * <li>8  = new Comment</li>
+	 * <li>16 = new Title</li>
+	 * <li>32 = Title not inserted</li>
+	 * <li>64 = Path exists</li>
+	 * </ul>
+	 */
 	private int[] insertTitleIntoDB(String interpret, String album, String name, String comment, String genre, String track, String year, Integer duration, String rating, String playcount, String path) {
 		int ret = 0;
 		int id = 0;
