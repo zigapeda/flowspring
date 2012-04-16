@@ -378,7 +378,24 @@ class ReadFiles extends Thread {
 		if((status[0] & 32) == 32) {
 			if((status[0] & 64) == 0) {
 				if(this.parent.isAvoidDoubles() == true) {
-					//check MD5
+					String pathstring = Title.getTitlePathById(status[1]);
+					if(pathstring != null) {
+						File titleindb = new File(pathstring);
+						if(titleindb.exists()) {
+							if(Compare.getMD5(titleindb).equals(Compare.getMD5(new File(t.getPath()))) == false) {
+								String newname;
+								do {
+									int nextval = this.getNextUnique();
+									if(nextval > -1) {
+										newname = t.getName() + "_" + String.valueOf(nextval);
+									} else {
+										return -1;
+									}
+									status = this.insertTitleIntoDB(t.getArtist(), t.getAlbum(), newname, t.getComment(), t.getGenre(), t.getTrack(), t.getYear(), t.getInt(), t.getRating(), t.getPlaycount(), t.getPath());
+								} while((status[0] & 32) == 0);
+							}
+						}
+					}
 				} else {
 					String newname;
 					do {
