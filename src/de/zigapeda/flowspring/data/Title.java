@@ -157,6 +157,21 @@ public class Title implements TreeRow {
 		}
         return nodes;
 	}
+	
+	public static String getTitlePathById(int id) {
+        Connection c = Main.getDatabase();
+        try {
+			PreparedStatement s = c.prepareStatement("select ttl_path from titles where ttl_id = ? ");
+			s.setInt(1, id);
+			ResultSet r = s.executeQuery();
+			if(r.next()) {
+				return r.getString(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+        return null;
+	}
 
 	public static Integer getTitleIdByPath(String path) {
         Connection c = Main.getDatabase();
