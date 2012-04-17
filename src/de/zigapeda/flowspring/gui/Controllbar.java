@@ -13,11 +13,11 @@ import de.zigapeda.flowspring.Main;
 import de.zigapeda.flowspring.data.DataNode;
 import de.zigapeda.flowspring.interfaces.TreeRow;
 
-public class Controlllayout extends JPanel  implements ItemListener {
+public class Controllbar extends JPanel  implements ItemListener {
 	private static final long	serialVersionUID	= 1194771405588627883L;
 	private Object lastcomponent;
 	
-	public Controlllayout() {
+	public Controllbar() {
         this.setLayout(new FlowLayout(FlowLayout.LEFT));
         JComboBox<TreeRow.Type> box = new JComboBox<>(TreeRow.classes);
         box.addItemListener(this);
