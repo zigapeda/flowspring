@@ -157,6 +157,21 @@ public class Title implements TreeRow {
 		}
         return nodes;
 	}
+	
+	public static String getTitlePathById(int id) {
+        Connection c = Main.getDatabase();
+        try {
+			PreparedStatement s = c.prepareStatement("select ttl_path from titles where ttl_id = ? ");
+			s.setInt(1, id);
+			ResultSet r = s.executeQuery();
+			if(r.next()) {
+				return r.getString(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+        return null;
+	}
 
 	public static Integer getTitleIdByPath(String path) {
         Connection c = Main.getDatabase();
@@ -194,6 +209,20 @@ public class Title implements TreeRow {
         try {
 			Statement s = c.createStatement();
 			s.executeUpdate("update titles set ttl_playcount = ttl_playcount + 1 where ttl_id = " + String.valueOf(id));
+			s.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void changePath(int id, String path) {
+        Connection c = Main.getDatabase();
+        try {
+			PreparedStatement s = c.prepareStatement("update titles set ttl_path = ? where ttl_id = ? ");
+			s.setString(1, path);
+			s.setInt(2, id);
+			s.execute();
+			s.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

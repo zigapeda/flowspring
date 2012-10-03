@@ -1,6 +1,13 @@
 package de.zigapeda.flowspring.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class Compare {
 	private static final String[] REPLACEMENT = new String[Character.MAX_VALUE];
@@ -142,15 +149,30 @@ public class Compare {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			byte[] raw = md.digest(message);
-		    byte[] hex = new byte[2 * raw.length];
-		    int index = 0;
-		    for (byte b : raw) {
-		      int v = b & 0xFF;
-		      hex[index++] = HEX_CHAR_TABLE[v >>> 4];
-		      hex[index++] = HEX_CHAR_TABLE[v & 0xF];
-		    }
-		    return new String(hex);
+			byte[] md5 = md.digest(message);
+			BigInteger bi=new BigInteger(1, md5);
+            return bi.toString(16);
+		}
+		return null;
+	}
+	
+	public static String getMD5(File file) {
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5");
+	        InputStream is=new FileInputStream(file);
+	        byte[] buffer=new byte[8192];
+	        int read=0;
+	        while( (read = is.read(buffer)) > 0)
+	                md.update(buffer, 0, read);
+			byte[] md5 = md.digest();
+			BigInteger bi=new BigInteger(1, md5);
+            return bi.toString(16);
+		} catch(NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch(FileNotFoundException e) {
+			e.printStackTrace();
+		} catch(IOException e) {
+			e.printStackTrace();
 		}
 		return null;
 	}

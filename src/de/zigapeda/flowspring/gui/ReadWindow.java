@@ -17,9 +17,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
@@ -33,8 +36,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
+import org.hsqldb.types.Types;
+
 import de.zigapeda.flowspring.Main;
 import de.zigapeda.flowspring.controller.Compare;
+import de.zigapeda.flowspring.controller.Rename;
 import de.zigapeda.flowspring.controller.Settings;
 import de.zigapeda.flowspring.controller.Tagreader;
 import de.zigapeda.flowspring.data.DataNode;
@@ -54,6 +60,7 @@ public class ReadWindow extends JFrame implements WindowListener, ActionListener
 	private JButton copyfiles;
 	private JButton movefiles;
 	private String path;
+	private JCheckBox avoiddoubles;
 
 	public ReadWindow() {
 		super("flowspring - Add files to library");
@@ -119,12 +126,15 @@ public class ReadWindow extends JFrame implements WindowListener, ActionListener
 		this.setReadfiles(new JButton("Read files"));
 		this.setCopyfiles(new JButton("Read and copy to music directory"));
 		this.setMovefiles(new JButton("Read and move to music directory"));
+		this.getCopyfiles().setEnabled(Rename.isRenameAvailable());
+		this.getMovefiles().setEnabled(Rename.isRenameAvailable());
+		this.avoiddoubles = new JCheckBox("Avoid doubles (takes more time)");
 		this.getReadfiles().addActionListener(this);
 		this.getCopyfiles().addActionListener(this);
 		this.getMovefiles().addActionListener(this);
 		c.gridx = 0;
 		c.gridy = 0;
-		buttonlayout.add(new JCheckBox("Avoid doubles (takes more time)"),c);
+		buttonlayout.add(this.avoiddoubles,c);
 		c.gridx = 1;
 		buttonlayout.add(this.getReadfiles(),c);
 		c.gridx = 2;
@@ -301,11 +311,16 @@ public class ReadWindow extends JFrame implements WindowListener, ActionListener
 	public void setMovefiles(JButton movefiles) {
 		this.movefiles = movefiles;
 	}
+	
+	public boolean isAvoidDoubles() {
+		return this.avoiddoubles.isSelected();
+	}
 }
 
 class ReadFiles extends Thread {
 	private JButton button;
 	private ReadWindow parent;
+	private Connection c;
 	
 	public ReadFiles(JButton button, ReadWindow parent) {
 		this.button = button;
@@ -314,38 +329,157 @@ class ReadFiles extends Thread {
 	
 	public void run() {
 		if(this.parent.getReadtablemodel().getRowCount() > 0) {
-			Connection c = Main.getDatabase();
+			this.c = Main.getDatabase();
 			LinkedList<Title> list = this.parent.getReadtablemodel().getData();
-			try {
-				for(int i = 0; i < list.size(); i++) {
-					Title t = list.get(i);
-					if(this.button == this.parent.getReadfiles()) {
-						PreparedStatement s = c.prepareStatement("call inserttitle(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-						this.setParameters(s, t.getArtist(), Compare.getComparableString(t.getArtist()),
-								t.getAlbum(), Compare.getComparableString(t.getAlbum()),
-								t.getName(), Compare.getComparableString(t.getName()),
-								t.getComment(), Compare.getMD5(t.getComment()),
-								t.getGenre(), Compare.getComparableString(t.getGenre()),
-								getInt(t.getTrack()), getInt(t.getYear()), t.getInt(),
-								getInt(t.getRating()), getInt(t.getPlaycount()), t.getPath());
-						s.execute();
-						s.close();
-					} else if (this.button == this.parent.getCopyfiles()) {
-						
-					} else if (this.button == this.parent.getMovefiles()) {
-
+			for(int i = 0; i < list.size(); i++) {
+				Title t = list.get(i);
+				if(this.button == this.parent.getReadfiles()) {
+					insertTitle(t);
+				} else if (this.button == this.parent.getCopyfiles()) {
+					String path = Rename.createPath(t);
+					if(Rename.isFile(path) == false) { 
+						int id = insertTitle(t);
+						if(id > -1) {
+							try {
+								File newfile = new File(path);
+								newfile.getParentFile().mkdirs();
+								Files.copy(new File(t.getPath()).toPath(), newfile.toPath());
+								Title.changePath(id, path);
+							} catch(IOException e) {
+								e.printStackTrace();
+							}
+						}
 					}
-					this.parent.setReadtext(i + 1, list.size());
+				} else if (this.button == this.parent.getMovefiles()) {
+					String path = Rename.createPath(t);
+					if(Rename.isFile(path) == false) { 
+						int id = insertTitle(t);
+						if(id > -1) {
+							try {
+								File newfile = new File(path);
+								newfile.getParentFile().mkdirs();
+								Files.move(new File(t.getPath()).toPath(), newfile.toPath());
+								Title.changePath(id, path);
+							} catch(IOException e) {
+								e.printStackTrace();
+							}
+						}
+					}
 				}
-				DataNode.refreshMedialib(Main.getWindow().getControlllayout().getTypeOrder().getFirst());
-				Main.getWindow().refreshMedialib();
-			} catch (SQLException e) {
-				e.printStackTrace();
+				this.parent.setReadtext(i + 1, list.size());
 			}
+			DataNode.refreshMedialib(Main.getWindow().getControlllayout().getTypeOrder().getFirst());
+			Main.getWindow().refreshMedialib();
 		}
 	}
 	
+	private int insertTitle(Title t) {
+		int[] status = this.insertTitleIntoDB(t.getArtist(), t.getAlbum(), t.getName(), t.getComment(), t.getGenre(), t.getTrack(), t.getYear(), t.getInt(), t.getRating(), t.getPlaycount(), t.getPath());
+		if((status[0] & 32) == 32) {
+			if((status[0] & 64) == 0) {
+				if(this.parent.isAvoidDoubles() == true) {
+					String pathstring = Title.getTitlePathById(status[1]);
+					if(pathstring != null) {
+						File titleindb = new File(pathstring);
+						if(titleindb.exists()) {
+							if(Compare.getMD5(titleindb).equals(Compare.getMD5(new File(t.getPath()))) == false) {
+								String newname;
+								do {
+									int nextval = this.getNextUnique();
+									if(nextval > -1) {
+										newname = t.getName() + "_" + String.valueOf(nextval);
+									} else {
+										return -1;
+									}
+									status = this.insertTitleIntoDB(t.getArtist(), t.getAlbum(), newname, t.getComment(), t.getGenre(), t.getTrack(), t.getYear(), t.getInt(), t.getRating(), t.getPlaycount(), t.getPath());
+								} while((status[0] & 32) == 0);
+							}
+						}
+					}
+				} else {
+					String newname;
+					do {
+						int nextval = this.getNextUnique();
+						if(nextval > -1) {
+							newname = t.getName() + "_" + String.valueOf(nextval);
+						} else {
+							return -1;
+						}
+						status = this.insertTitleIntoDB(t.getArtist(), t.getAlbum(), newname, t.getComment(), t.getGenre(), t.getTrack(), t.getYear(), t.getInt(), t.getRating(), t.getPlaycount(), t.getPath());
+					} while((status[0] & 32) == 0);
+				}
+			}
+		}
+		return status[1];
+	}
+	
+	/**
+	 * Try to insert the Title into the database by checking Interpret, Album, Genre and Comment
+	 * if they exists and create them if not.
+	 * 
+	 * @return an array with two integers, first one is the status, second one is the new titleid
+	 * status is a binary switch with values
+	 * <ul>
+	 * <li>1  = new Interpret</li>
+	 * <li>2  = new Album</li>
+	 * <li>4  = new Genre</li>
+	 * <li>8  = new Comment</li>
+	 * <li>16 = new Title</li>
+	 * <li>32 = Title not inserted</li>
+	 * <li>64 = Path exists</li>
+	 * </ul>
+	 */
+	private int[] insertTitleIntoDB(String interpret, String album, String name, String comment, String genre, String track, String year, Integer duration, String rating, String playcount, String path) {
+		int ret = 0;
+		int id = 0;
+		try {
+			CallableStatement s = c.prepareCall("call inserttitle(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+			this.setParameters(s, interpret, Compare.getComparableString(interpret),
+					album, Compare.getComparableString(album),
+					name, Compare.getComparableString(name),
+					comment, Compare.getMD5(comment),
+					genre, Compare.getComparableString(genre),
+					getInt(track), getInt(year), duration,
+					getIntNN(rating), getIntNN(playcount), path);
+			s.registerOutParameter(17, Types.INTEGER);
+			s.registerOutParameter(18, Types.INTEGER);			
+			s.execute();
+			ret = s.getInt(17);
+			id = s.getInt(18);
+			s.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return new int[] {ret, id};
+	}
+	
+	private int getNextUnique() {
+		Statement s;
+		try {
+			s = c.createStatement();
+			ResultSet r = s.executeQuery("select next value for unq_gen from dual");
+			if(r.next()) {
+				return r.getInt(1);
+			} else {
+				return -1;
+			}
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
+	
 	private Integer getInt(String string) {
+		if(string != null) {
+			try {
+				return Integer.valueOf(string);
+			} catch (NumberFormatException e) {
+			}
+		}
+		return null;
+	}
+	
+	private Integer getIntNN(String string) {
 		if(string != null) {
 			try {
 				return Integer.valueOf(string);

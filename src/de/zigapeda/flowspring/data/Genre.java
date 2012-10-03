@@ -145,9 +145,9 @@ public class Genre implements TreeRow {
 			Statement s = c.createStatement();
 			ResultSet r = null;
 			if(stmt != null) {
-				r = s.executeQuery("select distinct stk_gre_id, stk_genre, count(distinct stk_int_id), count(distinct stk_alb_id), min(stk_comment), count(stk_track), min(stk_year)||' - '||max(stk_year), sum(stk_duration), avg(stk_rating), sum(stk_playcount) from soundtracks where " + stmt + " group by stk_gre_id, stk_genre order by stk_genre");
+				r = s.executeQuery("select distinct stk_gre_id, stk_genre, count(distinct stk_int_id), count(distinct stk_alb_id), min(stk_comment), count(stk_track), case when min(stk_year) = max(stk_year) then min(stk_year)||'' else min(stk_year)||' - '||max(stk_year) end, sum(stk_duration), avg(stk_rating), sum(stk_playcount) from soundtracks where " + stmt + " group by stk_gre_id, stk_genre order by stk_genre");
 			} else {
-				r = s.executeQuery("select distinct stk_gre_id, stk_genre, count(distinct stk_int_id), count(distinct stk_alb_id), min(stk_comment), count(stk_track), min(stk_year)||' - '||max(stk_year), sum(stk_duration), avg(stk_rating), sum(stk_playcount) from soundtracks group by stk_gre_id, stk_genre order by stk_genre");
+				r = s.executeQuery("select distinct stk_gre_id, stk_genre, count(distinct stk_int_id), count(distinct stk_alb_id), min(stk_comment), count(stk_track), case when min(stk_year) = max(stk_year) then min(stk_year)||'' else min(stk_year)||' - '||max(stk_year) end, sum(stk_duration), avg(stk_rating), sum(stk_playcount) from soundtracks group by stk_gre_id, stk_genre order by stk_genre");
 			}
 			while(r.next()) {
 				nodes.add(new DataNode(new Genre(r.getInt(1), r.getString(2), r.getInt(3), r.getInt(4), r.getString(5), r.getInt(6), r.getString(7), r.getInt(8), r.getInt(9), r.getInt(10)),parent,null));

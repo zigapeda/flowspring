@@ -155,9 +155,9 @@ public class Rating implements TreeRow {
 			Statement s = c.createStatement();
 			ResultSet r = null;
 			if(stmt != null) {
-				r = s.executeQuery("select stk_rating, count(distinct stk_int_id), count(distinct stk_alb_id), group_concat(distinct stk_genre order by stk_genre separator ', '), min(stk_comment), count(stk_track), min(stk_year) || ' - ' || max(stk_year), sum(stk_duration), sum(stk_playcount) from soundtracks where " + stmt + " group by stk_rating order by stk_rating");
+				r = s.executeQuery("select stk_rating, count(distinct stk_int_id), count(distinct stk_alb_id), group_concat(distinct stk_genre order by stk_genre separator ', '), min(stk_comment), count(stk_track), case when min(stk_year) = max(stk_year) then min(stk_year)||'' else min(stk_year)||' - '||max(stk_year) end, sum(stk_duration), sum(stk_playcount) from soundtracks where " + stmt + " group by stk_rating order by stk_rating");
 			} else {
-				r = s.executeQuery("select stk_rating, count(distinct stk_int_id), count(distinct stk_alb_id), group_concat(distinct stk_genre order by stk_genre separator ', '), min(stk_comment), count(stk_track), min(stk_year) || ' - ' || max(stk_year), sum(stk_duration), sum(stk_playcount) from soundtracks group by stk_rating order by stk_rating");
+				r = s.executeQuery("select stk_rating, count(distinct stk_int_id), count(distinct stk_alb_id), group_concat(distinct stk_genre order by stk_genre separator ', '), min(stk_comment), count(stk_track), case when min(stk_year) = max(stk_year) then min(stk_year)||'' else min(stk_year)||' - '||max(stk_year) end, sum(stk_duration), sum(stk_playcount) from soundtracks group by stk_rating order by stk_rating");
 			}
 			while(r.next()) {
 				String gre = r.getString(4);

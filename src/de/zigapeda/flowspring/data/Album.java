@@ -149,9 +149,9 @@ public class Album implements TreeRow {
 			Statement s = c.createStatement();
 			ResultSet r = null;
 			if(stmt != null) {
-				r = s.executeQuery("select stk_alb_id, stk_album, count(distinct stk_int_id), min(stk_interpret), group_concat(distinct stk_genre order by stk_genre separator ', '), min(stk_comment), count(stk_track), min(stk_year)||' - '||max(stk_year), sum(stk_duration), avg(stk_rating), sum(stk_playcount) from soundtracks where " + stmt + " group by stk_alb_id, stk_album order by stk_album");
+				r = s.executeQuery("select stk_alb_id, stk_album, count(distinct stk_int_id), min(stk_interpret), group_concat(distinct stk_genre order by stk_genre separator ', '), min(stk_comment), count(stk_track), case when min(stk_year) = max(stk_year) then min(stk_year)||'' else min(stk_year)||' - '||max(stk_year) end, sum(stk_duration), avg(stk_rating), sum(stk_playcount) from soundtracks where " + stmt + " group by stk_alb_id, stk_album order by stk_album");
 			} else {
-				r = s.executeQuery("select stk_alb_id, stk_album, count(distinct stk_int_id), min(stk_interpret), group_concat(distinct stk_genre order by stk_genre separator ', '), min(stk_comment), count(stk_track), min(stk_year)||' - '||max(stk_year), sum(stk_duration), avg(stk_rating), sum(stk_playcount) from soundtracks group by stk_alb_id, stk_album order by stk_album");
+				r = s.executeQuery("select stk_alb_id, stk_album, count(distinct stk_int_id), min(stk_interpret), group_concat(distinct stk_genre order by stk_genre separator ', '), min(stk_comment), count(stk_track), case when min(stk_year) = max(stk_year) then min(stk_year)||'' else min(stk_year)||' - '||max(stk_year) end, sum(stk_duration), avg(stk_rating), sum(stk_playcount) from soundtracks group by stk_alb_id, stk_album order by stk_album");
 			}
 			while(r.next()) {
 				String gre = r.getString(5);

@@ -39,6 +39,7 @@ public class Database {
 			s.executeUpdate("create sequence gre_gen start with 1;");
 			s.executeUpdate("create sequence com_gen start with 1;");
 			s.executeUpdate("create sequence ttl_gen start with 1;");
+			s.executeUpdate("create sequence unq_gen start with 1;");
 			s.executeUpdate("create table interprets (" +
 					"  int_id int," +
 					"  int_name varchar_ignorecase(256)," +
@@ -143,22 +144,24 @@ public class Database {
 					"left outer join genres " +
 					"             on ttl_gre_id = gre_id;");
 			s.executeUpdate("create procedure insertTitle" +
-					" (i_interpret varchar(256)," +
-					"  i_intcmp varchar(256)," +
-					"  i_album varchar(256)," +
-					"  i_albcmp varchar(256)," +
-					"  i_title varchar(256)," +
-					"  i_ttlcmp varchar(256)," +
-					"  i_comment varchar(4000)," +
-					"  i_comhash varchar(32)," +
-					"  i_genre varchar(256)," +
-					"  i_grecmp varchar(256)," +
-					"  i_track int," +
-					"  i_year int," +
-					"  i_duration int," +
-					"  i_rating int," +
-					"  i_playcount int," +
-					"  i_path varchar(4096)) " +
+					" (IN i_interpret varchar(256)," +
+					"  IN i_intcmp varchar(256)," +
+					"  IN i_album varchar(256)," +
+					"  IN i_albcmp varchar(256)," +
+					"  IN i_title varchar(256)," +
+					"  IN i_ttlcmp varchar(256)," +
+					"  IN i_comment varchar(4000)," +
+					"  IN i_comhash varchar(32)," +
+					"  IN i_genre varchar(256)," +
+					"  IN i_grecmp varchar(256)," +
+					"  IN i_track int," +
+					"  IN i_year int," +
+					"  IN i_duration int," +
+					"  IN i_rating int," +
+					"  IN i_playcount int," +
+					"  IN i_path varchar(4096)," +
+					"  OUT o_status int," +
+					"  OUT o_id int) " +
 					"modifies sql data " +
 					"begin atomic" +
 					"  declare intid int;" +
@@ -214,14 +217,22 @@ public class Database {
 					"  end if;" +
 					"  select ttl_id into ttlid from titles where ttl_cmpname = i_ttlcmp and ttl_alb_id = albid;" +
 					"  if(ttlid is null) then" +
+					"    select next value for ttl_gen into ttlid from dual;" +
 					"    insert into titles (ttl_id, ttl_name, ttl_cmpname, ttl_int_id, ttl_alb_id, ttl_gre_id, ttl_com_id," +
 					"                    ttl_track, ttl_year, ttl_duration, ttl_rating, ttl_playcount, ttl_path)" +
-					"    values (next value for ttl_gen, i_title, i_ttlcmp, intid, albid, greid, comid, i_track," +
+					"    values (ttlid, i_title, i_ttlcmp, intid, albid, greid, comid, i_track," +
 					"                    i_year, i_duration, i_rating, i_playcount, i_path);" +
 					"    set status = status + 16;" +
+					"    set o_id = ttlid;" +
 					"  else " +
 					"    set status = status + 32;" +
+					"    set o_id = ttlid;" +
+					"    select ttl_id into ttlid from titles where ttl_path = i_path;" +
+					"    if(ttlid is not null) then" +
+					"      set status = status + 64;" +
+					"    end if;" +
 					"  end if; " +
+					"  set o_status = status;" +
 					"end;");
 			s.executeUpdate("set ignorecase true;");
 		} catch (SQLException e) {

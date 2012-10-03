@@ -2,6 +2,7 @@ package de.zigapeda.flowspring.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
@@ -60,7 +61,7 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 	private AbstractTreeTableModel	medialibrarymodel;
 	private TreeTable medialibrary;
 	private Playlist playlist;
-	private Controlllayout controlllayout;
+	private Controllbar controllbar;
 	private Searchbar searchbar;
 	private Progressbar progressbar;
 	private Volumebar volumebar;
@@ -77,9 +78,13 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 	private MedialibraryRenderer medialibraryrenderer;
 	private JSplitPane splitpane;
 	private JPopupMenu medialibrarymenu;
+	private JPanel controlllayout;
 	private boolean sortdirection;
 	private int sortindex;
 	private int sortcolumn;
+	private JButton layoutbutton;
+	private Container oldpane;
+	private JPanel left;
 
 	public MainWindow() {
 		super("flowspring");
@@ -93,9 +98,10 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 		this.addWindowListener(this);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setLayout(new BorderLayout());
-        JPanel left = new JPanel();
+        left = new JPanel();
         left.setLayout(new BorderLayout());
-        left.add(this.setupControlllayout(), BorderLayout.PAGE_START);
+        this.controlllayout = this.setupControlllayout();
+        left.add(this.controlllayout, BorderLayout.PAGE_START);
         this.playercontroller = new PlayerController(this.progressbar, this.playlist);
         left.add(new JScrollPane(this.medialibrary));
 		this.playlist.setMinimumSize(new Dimension(179,560));
@@ -133,7 +139,7 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 		this.setupMedialibrary();
         controlls.setLayout(null);
         Insets noinset = new Insets(-10, -10, -10, -10);
-        this.controlllayout = new Controlllayout();
+        this.controllbar = new Controllbar();
         this.searchbar = new Searchbar();
         this.progressbar = new Progressbar();
         this.volumebar = new Volumebar();
@@ -143,6 +149,7 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
         previousbutton = new JButton("◄◄");
         nextbutton = new JButton("►►");
         stopbutton = new JButton("■");
+        layoutbutton = new JButton("M");
         Font small = new Font(playbutton.getFont().getName(), playbutton.getFont().getStyle(), playbutton.getFont().getSize() - 2);
         Font big = new Font(playbutton.getFont().getName(), playbutton.getFont().getStyle(), playbutton.getFont().getSize() + 11);
         menubutton.setMargin(noinset);
@@ -154,6 +161,7 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
         nextbutton.setFont(small);
         stopbutton.setMargin(noinset);
         stopbutton.setFont(small);
+        layoutbutton.setMargin(noinset);
         this.searchbar.addKeyListener(this);
         this.searchbar.getDocument().addDocumentListener(this);
         playbutton.addActionListener(this);
@@ -161,7 +169,8 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
         nextbutton.addActionListener(this);
         stopbutton.addActionListener(this);
         menubutton.addActionListener(this);
-        controlllayout.setBounds(30, 90, 380, 30);
+        layoutbutton.addActionListener(this);
+        controllbar.setBounds(30, 90, 380, 30);
         this.searchbar.setBounds(415,95,185,25);
         this.progressbar.setBounds(100, 56, 500, 28); //this.progressbar.setBounds(100, 70, 500, 14);
         this.volumebar.setBounds(100, 0, 100, 28);
@@ -171,9 +180,10 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
         previousbutton.setBounds(5,65,30,24);
         nextbutton.setBounds(65,65,30,24);
         stopbutton.setBounds(35,65,30,24);
+        layoutbutton.setBounds(580,0,20,20);
         controlls.setPreferredSize(new Dimension(600, 120));
         controlls.setMinimumSize(new Dimension(600, 120));
-        controlls.add(controlllayout);
+        controlls.add(controllbar);
         controlls.add(this.progressbar);
         controlls.add(this.volumebar);
         controlls.add(this.balancebar);
@@ -183,6 +193,7 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
         controlls.add(previousbutton);
         controlls.add(nextbutton);
         controlls.add(stopbutton);
+        controlls.add(layoutbutton);
         return controlls;
 	}
 
@@ -209,8 +220,8 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 		}
 	}
 
-	public Controlllayout getControlllayout() {
-		return this.controlllayout;
+	public Controllbar getControlllayout() {
+		return this.controllbar;
 	}
 	
 	public void setBalanceVolume() {
@@ -349,6 +360,8 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 			this.playercontroller.previous();
 		} else if(e.getSource() == this.menubutton) {
 			this.menu.show(this.menubutton, 10, 10);
+		} else if(e.getSource() == this.layoutbutton) {
+			changeLayout();
 		} else if(e.getSource() instanceof JCheckBoxMenuItem) {
 			if(this.columnmenu.getComponentIndex((Component)e.getSource()) != -1) {
 				Column c = Column.getColumnByName(Column.getMedialibrarycolumns(),((JCheckBoxMenuItem)e.getSource()).getText());
@@ -367,6 +380,24 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 					}
 					break;
 			}
+		}
+	}
+
+	private void changeLayout() {
+		if(this.getMinimumSize().getHeight() == 600) {
+			//big layout to small layout
+			this.setMinimumSize(new Dimension(605, 120));
+			this.setResizable(false);
+			this.setSize(600, 120);
+			this.left.remove(this.controlllayout);
+			this.oldpane = this.getContentPane();
+			this.setContentPane(this.controlllayout);
+		} else {
+			//small layout to big layout
+			this.setResizable(true);
+			this.setMinimumSize(new Dimension(800, 600));
+			this.left.add(this.controlllayout);
+			this.setContentPane(this.oldpane);
 		}
 	}
 

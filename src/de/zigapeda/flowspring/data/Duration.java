@@ -143,9 +143,9 @@ public class Duration implements TreeRow {
 			Statement s = c.createStatement();
 			ResultSet r = null;
 			if(stmt != null) {
-				r = s.executeQuery("select stk_duration, count(distinct stk_int_id), count(distinct stk_alb_id), group_concat(distinct stk_genre order by stk_genre separator ', '), min(stk_comment), count(stk_track), min(stk_year) || ' - ' || max(stk_year), avg(stk_rating), sum(stk_playcount) from soundtracks where " + stmt + " group by stk_duration order by stk_duration");
+				r = s.executeQuery("select stk_duration, count(distinct stk_int_id), count(distinct stk_alb_id), group_concat(distinct stk_genre order by stk_genre separator ', '), min(stk_comment), count(stk_track), case when min(stk_year) = max(stk_year) then min(stk_year)||'' else min(stk_year)||' - '||max(stk_year) end, avg(stk_rating), sum(stk_playcount) from soundtracks where " + stmt + " group by stk_duration order by stk_duration");
 			} else {
-				r = s.executeQuery("select stk_duration, count(distinct stk_int_id), count(distinct stk_alb_id), group_concat(distinct stk_genre order by stk_genre separator ', '), min(stk_comment), count(stk_track), min(stk_year) || ' - ' || max(stk_year), avg(stk_rating), sum(stk_playcount) from soundtracks group by stk_duration order by stk_duration");
+				r = s.executeQuery("select stk_duration, count(distinct stk_int_id), count(distinct stk_alb_id), group_concat(distinct stk_genre order by stk_genre separator ', '), min(stk_comment), count(stk_track), case when min(stk_year) = max(stk_year) then min(stk_year)||'' else min(stk_year)||' - '||max(stk_year) end, avg(stk_rating), sum(stk_playcount) from soundtracks group by stk_duration order by stk_duration");
 			}
 			while(r.next()) {
 				String gre = r.getString(4);
