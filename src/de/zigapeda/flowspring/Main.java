@@ -48,6 +48,8 @@ import de.zigapeda.flowspring.gui.ReadWindow;
 import de.zigapeda.flowspring.gui.Splash;
 
 public class Main {
+	private static final String DIRECTORY = "/.flowspring/";
+	
 	private static Database database;
 	private static MainWindow window;
 	private static ReadWindow readwindow;
@@ -96,11 +98,11 @@ public class Main {
 	}
 	
 	private static boolean checkInstance() {
-		File temppath = new File(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + "/flowspring");
+		File temppath = new File(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + DIRECTORY);
 		if(temppath.exists() == false) {
 			temppath.mkdir();
 		}
-		File pidfile = new File(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + "/flowspring/pid.lock");
+		File pidfile = new File(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + DIRECTORY + "pid.lock");
 		boolean running = false;
 		if(pidfile.exists()) {
 			String pid = null;
@@ -161,7 +163,7 @@ public class Main {
 		} else {
 			Main.appdata = new File(System.getProperty("user.home")).getAbsolutePath();
 		}
-		Main.appdata = Main.appdata + "/.flowspring/";
+		Main.appdata = Main.appdata + DIRECTORY;
 		File f = new File(Main.appdata);
 		if(f.exists() == false) {
 			f.mkdir();

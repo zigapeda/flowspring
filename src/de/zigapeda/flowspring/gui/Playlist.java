@@ -1,5 +1,6 @@
 package de.zigapeda.flowspring.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -17,6 +18,8 @@ import javax.swing.DropMode;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
@@ -28,23 +31,28 @@ import de.zigapeda.flowspring.Main;
 import de.zigapeda.flowspring.data.PlaylistTrack;
 import de.zigapeda.flowspring.data.Title;
 
-public class Playlist extends JList<PlaylistTrack> implements ListCellRenderer<PlaylistTrack>, MouseListener, KeyListener {
+public class Playlist extends JPanel implements ListCellRenderer<PlaylistTrack>, MouseListener, KeyListener {
 	private static final long	serialVersionUID	= -3606283321945550386L;
 	
 	private DefaultListModel<PlaylistTrack> playlistmodel;
 	private PlaylistTrack track;
+	private JList<PlaylistTrack> playlist;
 	
 	public Playlist() {
 		super();
 		this.track = null;
 	    this.playlistmodel = new DefaultListModel<>();
-	    this.addKeyListener(this);
-	    this.setModel(this.playlistmodel);
-		this.setDragEnabled(true);
-		this.setDropMode(DropMode.INSERT);
-		this.setTransferHandler(new ListMoveTransferHandler());
-		this.setCellRenderer(this);
-		this.addMouseListener(this);
+	    this.playlist = new JList<>();
+	    this.playlist.addKeyListener(this);
+	    this.playlist.setModel(this.playlistmodel);
+		this.playlist.setDragEnabled(true);
+		this.playlist.setDropMode(DropMode.INSERT);
+		this.playlist.setTransferHandler(new ListMoveTransferHandler());
+		this.playlist.setCellRenderer(this);
+		this.playlist.addMouseListener(this);
+		this.setLayout(new BorderLayout());
+		this.add(new JScrollPane(this.playlist));
+		this.add(new PlaylistControlls(this.playlistmodel),BorderLayout.PAGE_END);
 //		this.setBackground(new Color(115, 164, 209));
 //		this.setSelectionBackground(new Color(115, 164, 209));
 //		this.setSelectionForeground(new Color(0, 0, 0));
@@ -131,18 +139,18 @@ public class Playlist extends JList<PlaylistTrack> implements ListCellRenderer<P
         }
 		if(isSelected == true) {
 			label.setOpaque(true);
-			label.setBackground(this.getSelectionBackground());
-			label.setForeground(this.getSelectionForeground());
+			label.setBackground(this.playlist.getSelectionBackground());
+			label.setForeground(this.playlist.getSelectionForeground());
 		}
         return label;
 	}
 
 	public void mouseClicked(MouseEvent e) {
 		if(e.getClickCount() == 2) {
-			if(this.getSelectedIndex() != -1) {
-				if(this.track != this.getSelectedValue()) {
+			if(this.playlist.getSelectedIndex() != -1) {
+				if(this.track != this.playlist.getSelectedValue()) {
 					Main.getWindow().getPlayercontroller().stop();
-					this.track = this.getSelectedValue();
+					this.track = this.playlist.getSelectedValue();
 					Main.getWindow().getPlayercontroller().play();
 					this.repaint();
 				}
@@ -176,25 +184,25 @@ public class Playlist extends JList<PlaylistTrack> implements ListCellRenderer<P
 
 	public void keyReleased(KeyEvent e) {
 		if(e.getKeyCode() == KeyEvent.VK_DELETE) {
-			if(this.getSelectedIndex() != -1) {
-				if(this.getSelectedValue() == this.track) {
+			if(this.playlist.getSelectedIndex() != -1) {
+				if(this.playlist.getSelectedValue() == this.track) {
 					Main.getWindow().getPlayercontroller().stop();
 				}
-				int sel = this.getSelectedIndex();
-				this.playlistmodel.remove(this.getSelectedIndex());
+				int sel = this.playlist.getSelectedIndex();
+				this.playlistmodel.remove(this.playlist.getSelectedIndex());
 				if(this.playlistmodel.getSize() != 0) {
 					if(this.playlistmodel.getSize() > sel) {
-						this.setSelectedIndex(sel);
+						this.playlist.setSelectedIndex(sel);
 					} else {
-						this.setSelectedIndex(sel - 1);
+						this.playlist.setSelectedIndex(sel - 1);
 					}
 				}
 			}
 		} else if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-			if(this.getSelectedIndex() != -1) {
-				if(this.track != this.getSelectedValue()) {
+			if(this.playlist.getSelectedIndex() != -1) {
+				if(this.track != this.playlist.getSelectedValue()) {
 					Main.getWindow().getPlayercontroller().stop();
-					this.track = this.getSelectedValue();
+					this.track = this.playlist.getSelectedValue();
 					Main.getWindow().getPlayercontroller().play();
 					this.repaint();
 				}

@@ -98,9 +98,8 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
         left.add(this.setupControlllayout(), BorderLayout.PAGE_START);
         this.playercontroller = new PlayerController(this.progressbar, this.playlist);
         left.add(new JScrollPane(this.medialibrary));
-        JScrollPane right = new JScrollPane(this.playlist);
-		right.setMinimumSize(new Dimension(179,560));
-        splitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, left, right);
+		this.playlist.setMinimumSize(new Dimension(179,560));
+        splitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, left, this.playlist);
         splitpane.setResizeWeight(0.9);
         splitpane.setDividerSize(3);
         this.add(splitpane);
