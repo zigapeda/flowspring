@@ -58,8 +58,10 @@ public class DataNode {
     public List<DataNode> getChildren() {
     	Integer type = null;
     	if(this.children.size() == 0) {
-    		if(this.data.getType() != TreeRow.Title) {
-    			if(Main.getWindow() != null) {
+    		if(this.data.getType() != TreeRow.Title && this.data.getType() != TreeRow.YoutubeVideo) {
+    			if(this.data.getType() == TreeRow.YoutubeSearch) {
+					this.children = ((YoutubeSearch)this.data).getYoutubeTracks();
+    			} else if(Main.getWindow() != null) {
     				type = Main.getWindow().getControlllayout().getNextType(this.data.getType());
     				if(type != null) {
 	    				switch(type) {
@@ -126,95 +128,110 @@ public class DataNode {
 //		getComment();	7
 //		getRating();	8	
 //		getPlaycount();	9
-		for(int i = 0; i < list.size() - 1; i++) {
-			String s1 = null;
-			String s2 = null;
-			int i1 = 0;
-			int i2 = 0;
-			if(parenttype == TreeRow.Album && childtype == TreeRow.Title) {
-				i1 = Integer.valueOf(list.get(i).getData().getTrack());
-				i2 = Integer.valueOf(list.get(i+1).getData().getTrack());
-			} else {
-				switch(index) {
-					case 0:
-						s1 = list.get(i).getData().getName();
-						s2 = list.get(i+1).getData().getName();
-						break;
-					case 1:
-						s1 = list.get(i).getData().getArtist();
-						s2 = list.get(i+1).getData().getArtist();
-						break;
-					case 2:
-						s1 = list.get(i).getData().getAlbum();
-						s2 = list.get(i+1).getData().getAlbum();
-						break;
-					case 3:
-						s1 = list.get(i).getData().getGenre();
-						s2 = list.get(i+1).getData().getGenre();
-						break;
-					case 4:
-						s1 = list.get(i).getData().getTrack();
-						s2 = list.get(i+1).getData().getTrack();
-						break;
-					case 5:
-						s1 = list.get(i).getData().getYear();
-						s2 = list.get(i+1).getData().getYear();
-						break;
-					case 6:
-						i1 = list.get(i).getData().getDuration().intValue();
-						i2 = list.get(i+1).getData().getDuration().intValue();
-					case 7:
-						s1 = list.get(i).getData().getComment();
-						s2 = list.get(i+1).getData().getComment();
-						break;
-					case 8:
-						s1 = list.get(i).getData().getRating();
-						s2 = list.get(i+1).getData().getRating();
-						break;
-					case 9:
-						s1 = list.get(i).getData().getPlaycount();
-						s2 = list.get(i+1).getData().getPlaycount();
-						break;
-				}
+		DataNode youtubesearch = null;
+		
+		if(list.size() > 0) {
+			
+			if(list.get(0).getData() instanceof YoutubeSearch) {
+				youtubesearch = list.get(0);
+				list.remove(0);
 			}
-			if(s1 != null) {
-				if(direction == false) {
-					if(s1.compareToIgnoreCase(s2) > 0) {
-						change(list,i);
-						i = i - 2;
-						if(i < -1) {
-							i = -1;
-						}
-					}
+			
+			for(int i = 0; i < list.size() - 1; i++) {
+				String s1 = null;
+				String s2 = null;
+				int i1 = 0;
+				int i2 = 0;
+				if(parenttype == TreeRow.Album && childtype == TreeRow.Title) {
+					i1 = Integer.valueOf(list.get(i).getData().getTrack());
+					i2 = Integer.valueOf(list.get(i+1).getData().getTrack());
 				} else {
-					if(s1.compareToIgnoreCase(s2) < 0) {
-						change(list,i);
-						i = i - 2;
-						if(i < -1) {
-							i = -1;
-						}
+					switch(index) {
+						case 0:
+							s1 = list.get(i).getData().getName();
+							s2 = list.get(i+1).getData().getName();
+							break;
+						case 1:
+							s1 = list.get(i).getData().getArtist();
+							s2 = list.get(i+1).getData().getArtist();
+							break;
+						case 2:
+							s1 = list.get(i).getData().getAlbum();
+							s2 = list.get(i+1).getData().getAlbum();
+							break;
+						case 3:
+							s1 = list.get(i).getData().getGenre();
+							s2 = list.get(i+1).getData().getGenre();
+							break;
+						case 4:
+							s1 = list.get(i).getData().getTrack();
+							s2 = list.get(i+1).getData().getTrack();
+							break;
+						case 5:
+							s1 = list.get(i).getData().getYear();
+							s2 = list.get(i+1).getData().getYear();
+							break;
+						case 6:
+							i1 = list.get(i).getData().getDuration().intValue();
+							i2 = list.get(i+1).getData().getDuration().intValue();
+						case 7:
+							s1 = list.get(i).getData().getComment();
+							s2 = list.get(i+1).getData().getComment();
+							break;
+						case 8:
+							s1 = list.get(i).getData().getRating();
+							s2 = list.get(i+1).getData().getRating();
+							break;
+						case 9:
+							s1 = list.get(i).getData().getPlaycount();
+							s2 = list.get(i+1).getData().getPlaycount();
+							break;
 					}
 				}
-			} else {
-				if(direction == false) {
-					if(i1 > i2) {
-						change(list,i);
-						i = i - 2;
-						if(i < -1) {
-							i = -1;
+				if(s1 != null) {
+					if(direction == false) {
+						if(s1.compareToIgnoreCase(s2) > 0) {
+							change(list,i);
+							i = i - 2;
+							if(i < -1) {
+								i = -1;
+							}
+						}
+					} else {
+						if(s1.compareToIgnoreCase(s2) < 0) {
+							change(list,i);
+							i = i - 2;
+							if(i < -1) {
+								i = -1;
+							}
 						}
 					}
 				} else {
-					if(i1 < i2) {
-						change(list,i);
-						i = i - 2;
-						if(i < -1) {
-							i = -1;
+					if(direction == false) {
+						if(i1 > i2) {
+							change(list,i);
+							i = i - 2;
+							if(i < -1) {
+								i = -1;
+							}
+						}
+					} else {
+						if(i1 < i2) {
+							change(list,i);
+							i = i - 2;
+							if(i < -1) {
+								i = -1;
+							}
 						}
 					}
 				}
 			}
 		}
+		
+		if(youtubesearch != null) {
+			list.add(0, youtubesearch);
+		}
+			
 	}
 
     

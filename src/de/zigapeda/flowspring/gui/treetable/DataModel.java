@@ -21,7 +21,8 @@ public class DataModel extends AbstractTreeTableModel {
  
  
     public int getChildCount(Object parent) {
-    	if(((DataNode)parent).getData().getType() != TreeRow.Title) {
+    	Integer type = ((DataNode)parent).getData().getType();
+    	if(type != TreeRow.Title  && type != TreeRow.YoutubeVideo) {
     		return ((DataNode) parent).getChildren().size();
     	}
     	return 0;

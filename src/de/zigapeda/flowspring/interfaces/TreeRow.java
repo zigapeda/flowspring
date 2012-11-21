@@ -25,6 +25,8 @@ public interface TreeRow {
 	public final static int Comment = 8;
 	public final static int Rating = 9;
 	public final static int Playcount = 10;
+	public final static int YoutubeSearch = 11;
+	public final static int YoutubeVideo = 12;
 	
 	public int getId();
 	public Integer getInt();

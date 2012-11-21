@@ -61,12 +61,13 @@ public class Main {
 	public static void main(String[] args) {
 		if(Main.checkInstance() == false) {
 			Main.showSplash();
+			Main.setupVLC();
 			Main.setupAppdataDir();
 	        Main.setupLookandfeel();
-			new File(appdata + "flowspring.lck").delete();
-			new File(appdata + "flowspring.log").delete();
-			new File(appdata + "flowspring.properties").delete();
-			new File(appdata + "flowspring.script").delete();
+//			new File(appdata + "flowspring.lck").delete();
+//			new File(appdata + "flowspring.log").delete();
+//			new File(appdata + "flowspring.properties").delete();
+//			new File(appdata + "flowspring.script").delete();
 	        Main.setupApplication(args);
 			Main.setupMediakeylistener();
 			Main.window.setVisible(true);
@@ -74,6 +75,26 @@ public class Main {
 	        Main.setupOpenlistener();
 		} else {
 			Main.createOpenfile(args);
+		}
+	}
+
+	private static void setupVLC() {
+		boolean arch64 = false;
+		if(System.getProperty("os.arch").contains("64")) {
+			arch64 = true;
+		}
+		if(System.getProperty("os.name").toLowerCase().startsWith("windows")) {
+			if(arch64) { 
+				System.setProperty("jna.library.path", "lib/vlcwin64");
+			} else {
+				System.setProperty("jna.library.path", "lib/vlcwin32");
+			}
+		} else {
+			if(arch64) { 
+				System.setProperty("jna.library.path", "lib/vlclin64");
+			} else {
+				System.setProperty("jna.library.path", "lib/vlclin32");
+			}
 		}
 	}
 

@@ -26,8 +26,11 @@ public abstract class AbstractTreeTableModel implements TreeTableModel {
     }
  
     public boolean isLeaf(Object node) {
-        //return getChildCount(node) == 0;
-    	return ((DataNode)node).getData().getType() == TreeRow.Title;
+    	Integer type = ((DataNode)node).getData().getType();
+    	if(type != TreeRow.Title  && type != TreeRow.YoutubeVideo) {
+    		return false;
+    	}
+    	return true;
     }
  
     public void valueForPathChanged(TreePath path, Object newValue) {

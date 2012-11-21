@@ -190,6 +190,7 @@ public class Title implements TreeRow {
 
 	public static List<DataNode> getTitlesBySearchstring(String searchstring) {
         List<DataNode> nodes = new ArrayList<DataNode>();
+        nodes.add(new DataNode(new YoutubeSearch(searchstring),null,null));
         Connection c = Main.getDatabase();
         try {
 			Statement s = c.createStatement();

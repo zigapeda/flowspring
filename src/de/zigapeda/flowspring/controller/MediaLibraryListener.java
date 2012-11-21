@@ -15,6 +15,7 @@ import javax.swing.event.TreeExpansionListener;
 import de.zigapeda.flowspring.Main;
 import de.zigapeda.flowspring.data.PlaylistTrack;
 import de.zigapeda.flowspring.data.Title;
+import de.zigapeda.flowspring.data.YoutubeVideo;
 import de.zigapeda.flowspring.gui.treetable.TreeTable;
 import de.zigapeda.flowspring.gui.treetable.TreeTableCellRenderer;
 import de.zigapeda.flowspring.interfaces.TreeRow;
@@ -36,6 +37,8 @@ public class MediaLibraryListener implements MouseListener, KeyListener, TreeExp
 			if(selrow != null) {
 				if(selrow.getType() == TreeRow.Title) {
 					Main.getWindow().getPlaylist().addTrack(new PlaylistTrack(selrow.getArtist() + " - " + selrow.getName(),selrow.getInt(),((Title)selrow).getPath()));
+				} else if(selrow.getType() == TreeRow.YoutubeVideo) {
+					Main.getWindow().getPlaylist().addTrack(new PlaylistTrack(selrow.getName(),selrow.getInt(),((YoutubeVideo)selrow).getVideoUrl()));
 				} else {
 					int temp = this.medialibrary.getSelectedRow();
 					TreeTableCellRenderer ttcr = ((TreeTableCellRenderer)this.medialibrary.getCellRenderer(this.medialibrary.getSelectedRow(), 0));

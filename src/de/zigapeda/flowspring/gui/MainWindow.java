@@ -43,6 +43,8 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.tree.TreePath;
 
+import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
+
 import de.zigapeda.flowspring.Main;
 import de.zigapeda.flowspring.controller.MediaLibraryListener;
 import de.zigapeda.flowspring.controller.Settings;
@@ -102,7 +104,11 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
         left.setLayout(new BorderLayout());
         this.controlllayout = this.setupControlllayout();
         left.add(this.controlllayout, BorderLayout.PAGE_START);
-        this.playercontroller = new PlayerController(this.progressbar, this.playlist);
+
+		EmbeddedMediaPlayerComponent empc = new EmbeddedMediaPlayerComponent();
+		empc.setBounds(0, 0, 0, 0);
+		this.add(empc);
+        this.playercontroller = new PlayerController(this.progressbar, this.playlist, empc);
         left.add(new JScrollPane(this.medialibrary));
 		this.playlist.setMinimumSize(new Dimension(179,560));
         splitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, left, this.playlist);
@@ -442,7 +448,7 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 	public void keyPressed(KeyEvent e) {
 		if(e.getSource() == this.searchbar) {
 			if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-				
+				searchbarchange(false);
 			}
 		}
 	}
@@ -452,19 +458,19 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 	}
 
 	public void insertUpdate(DocumentEvent e) {
-		this.searchbarchange();
+		this.searchbarchange(true);
 	}
 
 	public void removeUpdate(DocumentEvent e) {
-		this.searchbarchange();
+		this.searchbarchange(true);
 	}
 
 	public void changedUpdate(DocumentEvent e) {
-		this.searchbarchange();
+		this.searchbarchange(true);
 	}
 	
-	private void searchbarchange() {
-		if(this.searchbar.getText().length() >= 3) {
+	private void searchbarchange(boolean length) {
+		if(this.searchbar.getText().length() >= 3 || length == false) {
 			DataNode.getSearch().setChildren(Title.getTitlesBySearchstring(this.searchbar.getText()));
 			this.refreshSearch();
 		} else if(this.searchbar.getText().length() == 0) {
