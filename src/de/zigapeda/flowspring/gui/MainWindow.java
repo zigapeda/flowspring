@@ -67,7 +67,7 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 	private Searchbar searchbar;
 	private Progressbar progressbar;
 	private Volumebar volumebar;
-	private Balancebar balancebar;
+//	private Balancebar balancebar;
 	private PlayerController playercontroller;
 	private JButton menubutton;
 	private JButton playbutton;
@@ -149,7 +149,7 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
         this.searchbar = new Searchbar();
         this.progressbar = new Progressbar();
         this.volumebar = new Volumebar();
-        this.balancebar = new Balancebar();
+//        this.balancebar = new Balancebar();
         menubutton = new JButton("▾");
         playbutton = new JButton("►");
         previousbutton = new JButton("◄◄");
@@ -179,8 +179,8 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
         controllbar.setBounds(30, 90, 380, 30);
         this.searchbar.setBounds(415,95,185,25);
         this.progressbar.setBounds(100, 56, 500, 28); //this.progressbar.setBounds(100, 70, 500, 14);
-        this.volumebar.setBounds(100, 0, 100, 28);
-        this.balancebar.setBounds(100,29,100,28);
+        this.volumebar.setBounds(100, 29, 100, 28);
+//        this.balancebar.setBounds(100,29,100,28);
         menubutton.setBounds(5, 95, 25, 25);
         playbutton.setBounds(5, 5, 90, 60);
         previousbutton.setBounds(5,65,30,24);
@@ -192,7 +192,7 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
         controlls.add(controllbar);
         controlls.add(this.progressbar);
         controlls.add(this.volumebar);
-        controlls.add(this.balancebar);
+//        controlls.add(this.balancebar);
         controlls.add(this.searchbar);
         controlls.add(menubutton);
         controlls.add(playbutton);
@@ -232,7 +232,7 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 	
 	public void setBalanceVolume() {
 		Main.getWindow().getPlayercontroller().setGain(this.volumebar.getValue());
-		Main.getWindow().getPlayercontroller().setPan(this.balancebar.getValue());
+//		Main.getWindow().getPlayercontroller().setPan(this.balancebar.getValue());
 	}
 	
 	public void setSearch(String search) {
@@ -449,6 +449,8 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 		if(e.getSource() == this.searchbar) {
 			if(e.getKeyCode() == KeyEvent.VK_ENTER) {
 				searchbarchange(false);
+				this.medialibrary.getSelectionModel().setSelectionInterval(0, 0);
+				this.medialibrary.requestFocus();
 			}
 		}
 	}
@@ -499,7 +501,7 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 		Settings.saveSettings("window.bounds", this.getPositionString());
 		Settings.saveSettings("medialib.columns", Column.getColumnlistString(Column.getMedialibrarycolumns()));
 		Settings.saveSettings("volume", String.valueOf(this.volumebar.getValue()));
-		Settings.saveSettings("balance", String.valueOf(this.balancebar.getValue()));
+//		Settings.saveSettings("balance", String.valueOf(this.balancebar.getValue()));
         Connection c = Main.getDatabase();
         try {
 			Statement s = c.createStatement();

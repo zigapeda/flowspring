@@ -50,7 +50,7 @@ public class Balancebar extends JPanel implements MouseListener, MouseMotionList
 
 	public void mousePressed(MouseEvent e) {
 		this.balancebar.setValue(e.getX());
-		Main.getWindow().getPlayercontroller().setPan(this.balancebar.getValue());
+//		Main.getWindow().getPlayercontroller().setPan(this.balancebar.getValue());
 		this.balancebar.repaint();
 	}
 
@@ -68,7 +68,7 @@ public class Balancebar extends JPanel implements MouseListener, MouseMotionList
 
 	public void mouseDragged(MouseEvent e) {
 		this.balancebar.setValue(e.getX());
-		Main.getWindow().getPlayercontroller().setPan(this.balancebar.getValue());
+//		Main.getWindow().getPlayercontroller().setPan(this.balancebar.getValue());
 		this.balancebar.repaint();
 	}
 
