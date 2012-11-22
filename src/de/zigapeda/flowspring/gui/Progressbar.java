@@ -34,19 +34,19 @@ public class Progressbar extends JPanel implements MouseListener{
 		this.add(this.left);
 	}
 	
-	public void setProgress(long total, int playedseconds) {
-		this.progress.setValue((int)(playedseconds * this.progress.getMaximum() / total));
-		this.played.setText(this.getTimeFromSecs(playedseconds));
+	public void setProgress(float progress) {
+		this.progress.setValue((int)(progress*1000F));
+		this.played.setText(this.getTimeFromSecs((int)(progress*(float)this.milliseconds) / 1000));
 		if(milliseconds != -1) {
-			this.left.setText(this.getTimeFromSecs((int)(this.milliseconds / 1000)- playedseconds));
+			this.left.setText(this.getTimeFromSecs((int)((1F-progress)*(float)this.milliseconds) / 1000));
 		}
 		this.repaint();
 	}
 
 	public void mouseClicked(MouseEvent e) {
-		double clk = e.getX();
-		double wdt = this.getWidth();
-		Main.getWindow().getPlayercontroller().seek(wdt / clk);
+		float clk = e.getX();
+		float wdt = this.getWidth();
+		Main.getWindow().getPlayercontroller().seek(clk / wdt);
 	}
 
 	public void mousePressed(MouseEvent e) {

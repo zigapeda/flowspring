@@ -83,24 +83,12 @@ public class PlayerController implements MediaPlayerEventListener {
 		}
 	}
 
-	public void seek(double percent) {
-//        long bytes = (long) Math.round(this.bytelength / percent);
-//		player.seek(bytes);
+	public void seek(float percent) {
+		this.empc.getMediaPlayer().setPosition(percent);
 	}
 	
 	public void setGain(int gain) {
-//		double g;
-//		g = 100 - gain;
-//		if(g == 0.0) {
-//			g = 1.0;
-//		}
-//		this.player.setGain(Math.log(g)/Math.log(10)*-0.5+1);
-	}
-	
-	public void setPan(int pan) {
-//		double p = 50;
-//		p = p - pan;
-//		this.player.setPan(p / -50);
+		this.empc.getMediaPlayer().setVolume(gain);
 	}
 
 	@Override
@@ -200,12 +188,12 @@ public class PlayerController implements MediaPlayerEventListener {
 
 	@Override
 	public void playing(MediaPlayer arg0) {
-		// TODO Auto-generated method stub
+		this.progressbar.setDuration(arg0.getLength());
 	}
 
 	@Override
 	public void positionChanged(MediaPlayer arg0, float arg1) {
-		// TODO Auto-generated method stub
+		this.progressbar.setProgress(arg0.getPosition());
 	}
 
 	@Override
