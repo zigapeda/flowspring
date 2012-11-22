@@ -166,6 +166,7 @@ public class Compare {
 	                md.update(buffer, 0, read);
 			byte[] md5 = md.digest();
 			BigInteger bi=new BigInteger(1, md5);
+			is.close();
             return bi.toString(16);
 		} catch(NoSuchAlgorithmException e) {
 			e.printStackTrace();

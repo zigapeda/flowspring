@@ -131,6 +131,7 @@ public class Main {
 			try {
 				BufferedReader br = new BufferedReader(new FileReader(pidfile));
 				pid = br.readLine();
+				br.close();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -427,6 +428,7 @@ public class Main {
 										Main.window.getPlaylist().addTrack(new PlaylistTrack(temp.getArtist() + " - " + temp.getName(), temp.getInt(), line));
 									}
 								}
+								br.close();
 							}
 						}
 					}
