@@ -133,14 +133,15 @@ public class MediaLibraryListener implements MouseListener, KeyListener, TreeExp
 				e.consume();
 				break;
 			case KeyEvent.VK_ENTER:
-				if(this.medialibrary.getValueAt(this.medialibrary.getSelectedRow()).getType() != 1) {
-					int temp = this.medialibrary.getSelectedRow();
-					((TreeTableCellRenderer)this.medialibrary.getCellRenderer(temp, 0)).expandRow(temp);
-					this.medialibrary.getSelectionModel().setSelectionInterval(temp + 1, temp + 1);
-				} else {
+				if(this.medialibrary.getValueAt(this.medialibrary.getSelectedRow()).getType() == TreeRow.Title
+						|| this.medialibrary.getValueAt(this.medialibrary.getSelectedRow()).getType() == TreeRow.YoutubeVideo) {
 					int temp = this.medialibrary.getSelectedRow();
 					TreeRow selrow = this.medialibrary.getValueAt(temp);
 					Main.getWindow().getPlaylist().addTrack(new PlaylistTrack(selrow.getArtist() + " - " + selrow.getName(),selrow.getInt(),((Title)selrow).getPath()));
+					this.medialibrary.getSelectionModel().setSelectionInterval(temp + 1, temp + 1);
+				} else {
+					int temp = this.medialibrary.getSelectedRow();
+					((TreeTableCellRenderer)this.medialibrary.getCellRenderer(temp, 0)).expandRow(temp);
 					this.medialibrary.getSelectionModel().setSelectionInterval(temp + 1, temp + 1);
 				}
 				e.consume();
