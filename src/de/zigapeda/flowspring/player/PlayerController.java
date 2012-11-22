@@ -125,7 +125,12 @@ public class PlayerController implements MediaPlayerEventListener {
 
 	@Override
 	public void finished(MediaPlayer arg0) {
-		
+		PlaylistTrack plt = this.playlist.getNext();
+		if(plt != null) {
+			this.empc.getMediaPlayer().playMedia(plt.getPath());
+		} else {
+			Main.getWindow().setPlaybuttonpause(false);
+		}
 	}
 
 	@Override
