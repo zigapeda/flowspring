@@ -94,11 +94,10 @@ public class YoutubeSearch implements TreeRow {
 				}
 			}
 			is.close();
-			return list;
 		} catch (MalformedURLException e1) {
 		} catch (IOException e1) {
 		}
-		return null;
+		return list;
 	}
 
 }

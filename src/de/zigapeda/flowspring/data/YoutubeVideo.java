@@ -29,7 +29,7 @@ public class YoutubeVideo implements TreeRow {
 	private Integer time;
 
 	public YoutubeVideo(String name, String url, String time) {
-		this.name = name;
+		this.name = name.replaceAll("&amp;", "&").replaceAll("&#39;", "'").replaceAll("&quot;", "\"").replaceAll("&lt;", "<").replaceAll("&gt;", ">");
 		this.url = url;
 		this.time = 0;
 		int multiply = 1;
