@@ -104,14 +104,16 @@ public class MediaLibraryListener implements MouseListener, KeyListener, TreeExp
 				break;
 			case KeyEvent.VK_LEFT:
 				if(this.medialibrary.getNodeAt(this.medialibrary.getSelectedRow()).isRoot() == true) {
-					if(this.medialibrary.getValueAt(this.medialibrary.getSelectedRow()).getType() != 1) {
+					if(this.medialibrary.getValueAt(this.medialibrary.getSelectedRow()).getType() != TreeRow.Title
+							&& this.medialibrary.getValueAt(this.medialibrary.getSelectedRow()).getType() != TreeRow.YoutubeVideo) {
 						int temp = this.medialibrary.getSelectedRow();
 						((TreeTableCellRenderer)this.medialibrary.getCellRenderer(this.medialibrary.getSelectedRow(), 0)).collapseRow(this.medialibrary.getSelectedRow());
 						this.medialibrary.getSelectionModel().setSelectionInterval(temp, temp);
 						this.scrollTo(temp);
 					}
 				} else {
-					if(this.medialibrary.getValueAt(this.medialibrary.getSelectedRow()).getType() != 1) {
+					if(this.medialibrary.getValueAt(this.medialibrary.getSelectedRow()).getType() != TreeRow.Title
+							&& this.medialibrary.getValueAt(this.medialibrary.getSelectedRow()).getType() != TreeRow.YoutubeVideo) {
 						if(((TreeTableCellRenderer)this.medialibrary.getCellRenderer(this.medialibrary.getSelectedRow(), 0)).isExpanded(this.medialibrary.getSelectedRow())) {
 							int temp = this.medialibrary.getSelectedRow();
 							((TreeTableCellRenderer)this.medialibrary.getCellRenderer(this.medialibrary.getSelectedRow(), 0)).collapseRow(this.medialibrary.getSelectedRow());
@@ -156,6 +158,9 @@ public class MediaLibraryListener implements MouseListener, KeyListener, TreeExp
 			int currow = this.medialibrary.getSelectedRow();
 			if(!this.medialibrary.getValueAt(currow).getName().toLowerCase().startsWith(this.searchstring)) {
 				int newrow = currow + 1;
+				if(this.medialibrary.getRowCount() == newrow) {
+					newrow = 0;
+				}
 				while(this.medialibrary.getValueAt(newrow).getName().toLowerCase().startsWith(this.searchstring) == false && newrow != currow) {
 					newrow++;
 					if(this.medialibrary.getRowCount() == newrow) {
