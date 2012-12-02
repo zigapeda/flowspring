@@ -187,6 +187,9 @@ public class Main {
 							"The player can't find an installation of VLC. May flowspring download VLC automatically?", "No VLC found",
 							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 					if(opt == JOptionPane.YES_OPTION) {
+						JOptionPane.showMessageDialog(null,
+								"This can take a few minutes. flowspring will start automatically after the download is succeeded.", "Download VLC",
+								JOptionPane.PLAIN_MESSAGE);
 						if(downloadVlc() == true) {
 							Settings.saveSettings("vlc", "vlc");
 							System.setProperty("jna.library.path", "vlc");
