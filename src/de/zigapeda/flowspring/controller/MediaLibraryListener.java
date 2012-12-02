@@ -24,6 +24,7 @@ public class MediaLibraryListener implements MouseListener, KeyListener, TreeExp
 	private TreeTable medialibrary;
 	private Date lastpress;
 	private String searchstring;
+	private boolean control;
 	
 	public MediaLibraryListener(TreeTable medialibrary) {
 		this.medialibrary = medialibrary;
@@ -103,6 +104,7 @@ public class MediaLibraryListener implements MouseListener, KeyListener, TreeExp
 				e.consume();
 				break;
 			case KeyEvent.VK_LEFT:
+				System.out.println(this.medialibrary.getNodeAt(this.medialibrary.getSelectedRow()).isRoot());
 				if(this.medialibrary.getNodeAt(this.medialibrary.getSelectedRow()).isRoot() == true) {
 					if(this.medialibrary.getValueAt(this.medialibrary.getSelectedRow()).getType() != TreeRow.Title
 							&& this.medialibrary.getValueAt(this.medialibrary.getSelectedRow()).getType() != TreeRow.YoutubeVideo) {
@@ -134,6 +136,9 @@ public class MediaLibraryListener implements MouseListener, KeyListener, TreeExp
 				}
 				e.consume();
 				break;
+			case KeyEvent.VK_CONTROL:
+				this.control = true;
+				break;
 			case KeyEvent.VK_ENTER:
 				if(this.medialibrary.getValueAt(this.medialibrary.getSelectedRow()).getType() == TreeRow.Title) {
 					int temp = this.medialibrary.getSelectedRow();
@@ -154,30 +159,36 @@ public class MediaLibraryListener implements MouseListener, KeyListener, TreeExp
 				break;
 		}
 		if(e.getKeyChar() != 65535 && e.getKeyChar() != 10) {
-			if(this.lastpress.getTime() + 2000 < new Date().getTime()) {
-				this.searchstring = "";
-			}
-			this.searchstring = this.searchstring + e.getKeyChar();
-			this.lastpress = new Date();
-			int currow = this.medialibrary.getSelectedRow();
-			if(!this.medialibrary.getValueAt(currow).getName().toLowerCase().startsWith(this.searchstring)) {
-				int newrow = currow + 1;
-				if(this.medialibrary.getRowCount() == newrow) {
-					newrow = 0;
+			if(this.control) {
+				if(e.getKeyCode() == 70) {
+					Main.getWindow().setSearch("");
 				}
-				while(this.medialibrary.getValueAt(newrow).getName().toLowerCase().startsWith(this.searchstring) == false && newrow != currow) {
-					newrow++;
+			} else {
+				if(this.lastpress.getTime() + 2000 < new Date().getTime()) {
+					this.searchstring = "";
+				}
+				this.searchstring = this.searchstring + e.getKeyChar();
+				this.lastpress = new Date();
+				int currow = this.medialibrary.getSelectedRow();
+				if(!this.medialibrary.getValueAt(currow).getName().toLowerCase().startsWith(this.searchstring)) {
+					int newrow = currow + 1;
 					if(this.medialibrary.getRowCount() == newrow) {
 						newrow = 0;
 					}
+					while(this.medialibrary.getValueAt(newrow).getName().toLowerCase().startsWith(this.searchstring) == false && newrow != currow) {
+						newrow++;
+						if(this.medialibrary.getRowCount() == newrow) {
+							newrow = 0;
+						}
+					}
+					if(newrow == currow) {
+						Main.getWindow().setSearch(this.searchstring);
+						this.searchstring = "";
+					} else {
+						this.medialibrary.getSelectionModel().setSelectionInterval(newrow, newrow);
+					}
+					this.scrollTo(newrow);
 				}
-				if(newrow == currow) {
-					Main.getWindow().setSearch(this.searchstring);
-					this.searchstring = "";
-				} else {
-					this.medialibrary.getSelectionModel().setSelectionInterval(newrow, newrow);
-				}
-				this.scrollTo(newrow);
 			}
 		} else {
 			this.searchstring = "";
@@ -185,7 +196,9 @@ public class MediaLibraryListener implements MouseListener, KeyListener, TreeExp
 	}
 
 	public void keyReleased(KeyEvent e) {
-		
+		if(e.getKeyCode() == KeyEvent.VK_CONTROL) {
+			this.control = false;
+		}
 	}
 	
 	private void scrollTo(int newrow) {
