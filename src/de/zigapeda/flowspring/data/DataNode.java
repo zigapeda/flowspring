@@ -60,7 +60,7 @@ public class DataNode {
     	if(this.children.size() == 0) {
     		if(this.data.getType() != TreeRow.Title && this.data.getType() != TreeRow.YoutubeVideo) {
     			if(this.data.getType() == TreeRow.YoutubeSearch) {
-					this.children = ((YoutubeSearch)this.data).getYoutubeTracks();
+					this.children = ((YoutubeSearch)this.data).getYoutubeTracks(this);
     			} else if(Main.getWindow() != null) {
     				type = Main.getWindow().getControlllayout().getNextType(this.data.getType());
     				if(type != null) {
