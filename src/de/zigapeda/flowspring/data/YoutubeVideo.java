@@ -21,7 +21,7 @@ public class YoutubeVideo implements TreeRow {
 	public final static int SD = 4;
 	public final static int LD = 9;
 
-	private int quality = 0; // 0 for HD or lower, 4 for SD or lower, 9 for LD
+	private int quality = 4; // 0 for HD or lower, 4 for SD or lower, 9 for LD
 
 	private String name;
 	private String url;
@@ -29,7 +29,7 @@ public class YoutubeVideo implements TreeRow {
 	private Integer time;
 
 	public YoutubeVideo(String name, String url, String time) {
-		this.name = name.replaceAll("&amp;", "&").replaceAll("&#39;", "'").replaceAll("&quot;", "\"").replaceAll("&lt;", "<").replaceAll("&gt;", ">");
+		this.name = name.replaceAll("&amp;", "&").replaceAll("&amp;", "&").replaceAll("&#39;", "'").replaceAll("&quot;", "\"").replaceAll("&lt;", "<").replaceAll("&gt;", ">");
 		this.url = url;
 		this.time = 0;
 		int multiply = 1;
