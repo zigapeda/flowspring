@@ -109,6 +109,7 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 		empc.setBounds(0, 0, 0, 0);
 		this.add(empc);
         this.playercontroller = new PlayerController(this.progressbar, this.playlist, empc);
+        playercontroller.setGain(this.volumebar.getValue());
         left.add(new JScrollPane(this.medialibrary));
 		this.playlist.setMinimumSize(new Dimension(179,560));
         splitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, left, this.playlist);
@@ -230,11 +231,6 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 		return this.controllbar;
 	}
 	
-	public void setBalanceVolume() {
-		Main.getWindow().getPlayercontroller().setGain(this.volumebar.getValue());
-//		Main.getWindow().getPlayercontroller().setPan(this.balancebar.getValue());
-	}
-	
 	public void setSearch(String search) {
 		this.searchbar.setText(search);
 		this.searchbar.requestFocus();
@@ -242,9 +238,11 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 	
 	public void refreshMedialib() {
 		LinkedList<TreePath> list = new LinkedList<>();
-		for(int i = 0; i < this.medialibrary.getRowCount(); i++) {
-			if(((TreeTableCellRenderer)this.medialibrary.getCellRenderer(i, 0)).isExpanded(i)) {
-				list.add(this.medialibrary.getPathAt(i));
+		if(this.medialibrarymodel.getRoot() == DataNode.getLibrary()) {
+			for(int i = 0; i < this.medialibrary.getRowCount(); i++) {
+				if(((TreeTableCellRenderer)this.medialibrary.getCellRenderer(i, 0)).isExpanded(i)) {
+					list.add(this.medialibrary.getPathAt(i));
+				}
 			}
 		}
 		this.searchbar.setText("");
