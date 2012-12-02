@@ -83,11 +83,12 @@ public class Main {
 //			new File(appdata + "flowspring.script").delete();
 			Main.setupDatabase();
 			Main.setupVLC();
-	        Main.setupApplication(args);
+	        Main.setupApplication();
 			Main.setupMediakeylistener();
 			Main.window.setVisible(true);
 			Main.splash.setVisible(false);
-	        Main.setupOpenlistener();
+			Main.checkArgs(args);
+			Main.setupOpenlistener();
 		} else {
 			Main.createOpenfile(args);
 		}
@@ -474,19 +475,10 @@ public class Main {
         return path;
     }
 	
-	private static void setupApplication(String[] args) {
+	private static void setupApplication() {
         Main.window = new MainWindow();
         if(Main.window.getControlllayout().getComponent(0) instanceof JComboBox<?>) {
         	((JComboBox<?>)Main.window.getControlllayout().getComponent(0)).setSelectedIndex(1);
-        }
-        if(args.length > 0) {
-        	for(String s: args) {
-        		File file = new File(s);
-        		if(file.exists()) {
-					Title temp = new Tagreader(file.toPath()).getTitle();
-					Main.window.getPlaylist().addTrack(new PlaylistTrack(temp.getArtist() + " - " + temp.getName(), temp.getInt(), s));
-        		}
-        	}
         }
 	}
 	
@@ -606,6 +598,18 @@ public class Main {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	private static void checkArgs(String[] args) {
+        if(args.length > 0) {
+        	for(String s: args) {
+        		File file = new File(s);
+        		if(file.exists()) {
+					Title temp = new Tagreader(file.toPath()).getTitle();
+					Main.window.getPlaylist().addTrack(new PlaylistTrack(temp.getArtist() + " - " + temp.getName(), temp.getInt(), s));
+        		}
+        	}
+        }
 	}
 
 	public static JFrame getOntopwindow() {
