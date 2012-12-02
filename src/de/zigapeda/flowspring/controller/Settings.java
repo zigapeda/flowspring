@@ -31,10 +31,7 @@ public class Settings {
         try {
 			Statement s = c.createStatement();
 			if(value == null) {
-				s.executeUpdate("merge into settings using (values('" + key + "',null)) " +
-						"as vals(x,y) on settings.set_name = vals.x " +
-						"when matched then update set settings.set_value = vals.y " +
-						"when not matched then insert values vals.x, vals.y ");
+				s.executeUpdate("delete from settings where set_name = '" + key + "'");
 			} else {
 				s.executeUpdate("merge into settings using (values('" + key + "','" + value + "')) " +
 						"as vals(x,y) on settings.set_name = vals.x " +
@@ -49,7 +46,7 @@ public class Settings {
 	
 	public static void firstStart() {
 		int opt = JOptionPane.showConfirmDialog(null,
-				"This is the first programm start. Do you want to setup base settings?", "First start detected",
+				"This is the first program start. Do you want to setup base settings?", "First start detected",
 				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if(opt == JOptionPane.YES_OPTION) {
 			Main.setOntopwindow(new FirstStartConfiguration());
