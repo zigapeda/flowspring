@@ -15,6 +15,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardWatchEventKinds;
@@ -22,12 +27,17 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.sql.Connection;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.Painter;
 import javax.swing.UIManager;
 
@@ -35,11 +45,14 @@ import jxgrabkey.HotkeyConflictException;
 import jxgrabkey.HotkeyListener;
 import jxgrabkey.JXGrabKey;
 import jxgrabkey.X11KeysymDefinitions;
+import uk.co.caprica.vlcj.discovery.NativeDiscovery;
+import uk.co.caprica.vlcj.version.LibVlcVersion;
 
 import com.melloware.jintellitype.IntellitypeListener;
 import com.melloware.jintellitype.JIntellitype;
 
 import de.zigapeda.flowspring.controller.Database;
+import de.zigapeda.flowspring.controller.Settings;
 import de.zigapeda.flowspring.controller.Tagreader;
 import de.zigapeda.flowspring.data.PlaylistTrack;
 import de.zigapeda.flowspring.data.Title;
@@ -49,6 +62,7 @@ import de.zigapeda.flowspring.gui.Splash;
 
 public class Main {
 	private static final String DIRECTORY = "/.flowspring/";
+//	private static final String DIRECTORY = "/.flowspringdev/";
 	
 	private static Database database;
 	private static MainWindow window;
@@ -61,13 +75,14 @@ public class Main {
 	public static void main(String[] args) {
 		if(Main.checkInstance() == false) {
 			Main.showSplash();
-			Main.setupJNA();
 			Main.setupAppdataDir();
-	        Main.setupLookandfeel();
+			Main.setupLookandfeel();
 //			new File(appdata + "flowspring.lck").delete();
 //			new File(appdata + "flowspring.log").delete();
 //			new File(appdata + "flowspring.properties").delete();
 //			new File(appdata + "flowspring.script").delete();
+			Main.setupDatabase();
+			Main.setupVLC();
 	        Main.setupApplication(args);
 			Main.setupMediakeylistener();
 			Main.window.setVisible(true);
@@ -75,26 +90,6 @@ public class Main {
 	        Main.setupOpenlistener();
 		} else {
 			Main.createOpenfile(args);
-		}
-	}
-
-	private static void setupJNA() {
-		boolean arch64 = false;
-		if(System.getProperty("os.arch").contains("64")) {
-			arch64 = true;
-		}
-		if(System.getProperty("os.name").toLowerCase().startsWith("windows")) {
-			if(arch64) { 
-				System.setProperty("jna.library.path", "lib/win64");
-			} else {
-				System.setProperty("jna.library.path", "lib/win32");
-			}
-		} else {
-			if(arch64) { 
-				System.setProperty("jna.library.path", "lib/lin64");
-			} else {
-				System.setProperty("jna.library.path", "lib/lin32");
-			}
 		}
 	}
 
@@ -177,6 +172,160 @@ public class Main {
 
 	private static void showSplash() {
 		Main.splash = new Splash();
+	}
+	
+	private static void setupDatabase() {
+        Main.database = new Database();
+	}
+
+	private static void setupVLC() {
+		String vlcPath = Settings.loadSettings("vlc");
+		if(vlcPath == null) {
+			if(new NativeDiscovery().discover() == false) {
+				if(System.getProperty("os.name").toLowerCase().startsWith("windows")) {
+					int opt = JOptionPane.showConfirmDialog(null,
+							"The player can't find an installation of VLC. May flowspring download VLC automatically?", "No VLC found",
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+					if(opt == JOptionPane.YES_OPTION) {
+						if(downloadVlc() == true) {
+							Settings.saveSettings("vlc", "vlc");
+							System.setProperty("jna.library.path", "vlc");
+						}
+					} else {
+						JFileChooser chooser = new JFileChooser(".");
+						chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+						if(chooser.showDialog(null, "Select") == JFileChooser.APPROVE_OPTION) {
+							Settings.saveSettings("vlc", chooser.getSelectedFile().toString());
+							System.setProperty("jna.library.path", chooser.getSelectedFile().toString());
+						}
+					}
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"The player can't find an installation of VLC. May you select the path where VLC is installed.", "No VLC found",
+							JOptionPane.PLAIN_MESSAGE);
+					JFileChooser chooser = new JFileChooser(".");
+					chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+					if(chooser.showDialog(null, "Select") == JFileChooser.APPROVE_OPTION) {
+						Settings.saveSettings("vlc", chooser.getSelectedFile().toString());
+						System.setProperty("jna.library.path", chooser.getSelectedFile().toString());
+					}
+				}
+			} else {
+				Settings.saveSettings("vlc", "discovery");
+			}
+		} else {
+			if(vlcPath.equals("discovery")) {
+				new NativeDiscovery().discover();
+			} else {
+				System.setProperty("jna.library.path", vlcPath);
+			}
+		}
+		try {
+			LibVlcVersion.getVersion();
+		} catch (Throwable e) {
+			Settings.saveSettings("vlc", null);
+			JOptionPane.showMessageDialog(null,
+					"The player can't find an installation of VLC. Please restart flowspring to configure VLC again.", "No VLC found",
+					JOptionPane.WARNING_MESSAGE);
+			System.exit(0);
+		}
+	}
+	
+	private static boolean downloadVlc() {
+		final String url = "http://download.videolan.org/pub/videolan/vlc/last/win";
+		try {
+			URL u;
+			if (System.getProperty("os.arch").contains("64")) {
+				u = new URL(url + "64/");
+			} else {
+				u = new URL(url + "32/");
+			}
+			URLConnection uc = u.openConnection();
+			BufferedReader br = new BufferedReader(new InputStreamReader(uc.getInputStream()));
+			String s = null;
+			while ((s = br.readLine()) != null) {
+				if (s.contains("zip</a>")) {
+					int pos = s.indexOf("\"");
+					if (pos > -1) {
+						URL vlc = new URL(u.toString() + s.substring(pos + 1, s.indexOf("\"", pos + 1)));
+						try {
+							uc = vlc.openConnection();
+							ReadableByteChannel rbc = Channels.newChannel(uc.getInputStream());
+							FileOutputStream fos = new FileOutputStream("vlc.zip");
+							fos.getChannel().transferFrom(rbc, 0, Long.valueOf(s.substring(s.lastIndexOf(" ") + 1)));
+							fos.close();
+							return extractVlc();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	private static boolean extractVlc() {
+		File destDir = new File("vlc");
+		if (!destDir.exists()) {
+			destDir.mkdir();
+		}
+		
+		ZipFile zipFile;
+		try {
+			zipFile = new ZipFile("vlc.zip");
+			Enumeration<?> entries = zipFile.entries();
+			
+			while (entries.hasMoreElements()) {
+				ZipEntry entry = (ZipEntry) entries.nextElement();
+				
+				String entryFileName = entry.getName();
+				if (!entry.isDirectory()) {
+					if(entryFileName.contains("plugins")) {
+						String dest = "vlc/" + entryFileName.substring(entryFileName.indexOf("plugins"));
+						int pos = dest.lastIndexOf("\\");
+						if(pos == -1) {
+							pos = dest.lastIndexOf("/");
+						}
+						File f = new File(dest.substring(0, pos));
+						if(!f.exists()) {
+							f.mkdirs();
+						}
+						extract(zipFile, entry, new File(dest));
+					} else if(entryFileName.endsWith("libvlc.dll")) {
+						extract(zipFile, entry, new File("vlc/libvlc.dll"));
+					} else if(entryFileName.endsWith("libvlccore.dll")) {
+						extract(zipFile, entry, new File("vlc/libvlccore.dll"));
+					}
+				}
+			}
+			zipFile.close();
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	private static void extract(ZipFile zipFile, ZipEntry entry, File file) {
+		try {
+			byte[] buffer = new byte[16384];
+			int len;
+			BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+			BufferedInputStream bis = new BufferedInputStream(zipFile.getInputStream(entry));
+			while ((len = bis.read(buffer)) > 0) {
+				bos.write(buffer, 0, len);
+			}
+			bos.flush();
+			bos.close();
+			bis.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private static void setupAppdataDir() {
@@ -323,7 +472,6 @@ public class Main {
     }
 	
 	private static void setupApplication(String[] args) {
-        Main.database = new Database();
         Main.window = new MainWindow();
         if(Main.window.getControlllayout().getComponent(0) instanceof JComboBox<?>) {
         	((JComboBox<?>)Main.window.getControlllayout().getComponent(0)).setSelectedIndex(1);
