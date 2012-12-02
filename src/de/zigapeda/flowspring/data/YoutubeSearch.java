@@ -71,7 +71,7 @@ public class YoutubeSearch implements TreeRow {
 		return TreeRow.YoutubeSearch;
 	}
 
-	public List<DataNode> getYoutubeTracks() {
+	public List<DataNode> getYoutubeTracks(DataNode parent) {
 		List<DataNode> list = new LinkedList<>();
 		search = search.replace(' ', '+');
 		String searchUrl = "http://www.youtube.com/results?search_query="
@@ -80,17 +80,26 @@ public class YoutubeSearch implements TreeRow {
 			URL u = new URL(searchUrl);
 			InputStream is = u.openConnection().getInputStream();
 			BufferedReader br = new BufferedReader(new InputStreamReader(is));
-			String line = "";
-			while ((line = br.readLine()) != null) {
-				if (line.contains("<li class=\"yt-grid-box result-item-video")) {
-					int pos = line.indexOf("data-context-item-title=") + 25;
-					String name = line.substring(pos, line.indexOf("\"", pos));
-					pos = line.indexOf("data-context-item-id=") + 22;
-					String url = "http://www.youtube.com/watch?v="
-							+ line.substring(pos, line.indexOf("\"", pos));
-					pos = line.indexOf("data-context-item-time=") + 24;
-					String time = line.substring(pos, line.indexOf("\"", pos));
-					list.add(new DataNode(new YoutubeVideo(name, url, time),null,null));
+    		String line = "";
+    		boolean sr = false;
+    		while ((line = br.readLine()) != null) {
+    			if(line.contains("<ol id=\"search-results\"")) {
+    				sr = true;
+    			}
+    			if(line.contains("</ol>")) {
+    				sr = false;
+    			}
+				if(line.contains("<li") && sr == true) {
+					int pos = line.indexOf("data-context-item-title=");
+					if(pos > -1) {
+						pos = pos + 25;
+	    				String name = line.substring(pos, line.indexOf("\"",pos));
+						pos = line.indexOf("data-context-item-id=") + 22;
+	    				String url = "http://www.youtube.com/watch?v=" + line.substring(pos, line.indexOf("\"",pos));
+						pos = line.indexOf("data-context-item-time=") + 24;
+	    				String time = line.substring(pos, line.indexOf("\"",pos));
+	    				list.add(new DataNode(new YoutubeVideo(name, url, time),parent,null));
+					}
 				}
 			}
 			is.close();
