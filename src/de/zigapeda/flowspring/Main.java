@@ -552,7 +552,7 @@ public class Main {
 	private static void setupOpenlistener() {
 		while (true) {
 			try {
-				Path dir = Paths.get(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + "/flowspring");
+				Path dir = Paths.get(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + DIRECTORY);
 				WatchService watcher = dir.getFileSystem().newWatchService();
 				dir.register(watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
 				WatchKey watchkey;
@@ -561,7 +561,7 @@ public class Main {
 				for(WatchEvent<?> event : events) {
 					if(event.kind() == StandardWatchEventKinds.ENTRY_CREATE || event.kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
 						if(event.context().toString().equals("open.lock")) {
-							File f = new File(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + "/flowspring/open.lock");
+							File f = new File(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + DIRECTORY + "open.lock");
 							if(f.exists()) {
 								BufferedReader br = new BufferedReader(new FileReader(f));
 								String line = br.readLine();
@@ -586,7 +586,7 @@ public class Main {
 	
 	private static void createOpenfile(String[] args) {
 		if(args.length > 0) {
-			File of = new File(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + "/flowspring/open.lock");
+			File of = new File(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + DIRECTORY + "open.lock");
 			try {
 				FileWriter fw = new FileWriter(of);
 				fw.write(Main.pid + "\n");
