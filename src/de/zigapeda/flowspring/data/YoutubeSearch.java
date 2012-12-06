@@ -94,11 +94,17 @@ public class YoutubeSearch implements TreeRow {
 					if(pos > -1) {
 						pos = pos + 25;
 	    				String name = line.substring(pos, line.indexOf("\"",pos));
-						pos = line.indexOf("data-context-item-id=") + 22;
-	    				String url = "http://www.youtube.com/watch?v=" + line.substring(pos, line.indexOf("\"",pos));
-						pos = line.indexOf("data-context-item-time=") + 24;
-	    				String time = line.substring(pos, line.indexOf("\"",pos));
-	    				list.add(new DataNode(new YoutubeVideo(name, url, time),parent,null));
+						pos = line.indexOf("data-context-item-id=");
+						if(pos > -1) {
+							pos = pos + 22;
+							String url = "http://www.youtube.com/watch?v=" + line.substring(pos, line.indexOf("\"",pos));
+							pos = line.indexOf("data-context-item-time=");
+							if(pos > -1) {
+								pos = pos + 24;
+								String time = line.substring(pos, line.indexOf("\"",pos));
+								list.add(new DataNode(new YoutubeVideo(name, url, time),parent,null));
+							}
+						}
 					}
 				}
 			}
