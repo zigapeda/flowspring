@@ -1,6 +1,5 @@
 package de.zigapeda.flowspring.gui;
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -21,9 +20,9 @@ public class PlaylistControlls extends JPanel implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = -7928305413964579181L;
-	private static final int REPEAT_NO = 0;
-	private static final int REPEAT_ALL = 1;
-	private static final int REPEAT_ONE = 2;
+	public static final int REPEAT_NO = 0;
+	public static final int REPEAT_ALL = 1;
+	public static final int REPEAT_ONE = 2;
 	
 	private DefaultListModel<PlaylistTrack> playlistmodel;
 	private int repeat = 0;
@@ -82,5 +81,9 @@ public class PlaylistControlls extends JPanel implements ActionListener {
 				button.setIcon(new ImageIcon(Main.class.getClass().getResource("/de/zigapeda/flowspring/res/repeatno.png")));
 				break;
 		}
+	}
+
+	public int getRepeat() {
+		return this.repeat;
 	}
 }

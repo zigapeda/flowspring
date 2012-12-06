@@ -37,6 +37,7 @@ public class Playlist extends JPanel implements ListCellRenderer<PlaylistTrack>,
 	private DefaultListModel<PlaylistTrack> playlistmodel;
 	private PlaylistTrack track;
 	private JList<PlaylistTrack> playlist;
+	private PlaylistControlls playlistcontrolls;
 	
 	public Playlist() {
 		super();
@@ -52,7 +53,8 @@ public class Playlist extends JPanel implements ListCellRenderer<PlaylistTrack>,
 		this.playlist.addMouseListener(this);
 		this.setLayout(new BorderLayout());
 		this.add(new JScrollPane(this.playlist));
-		this.add(new PlaylistControlls(this.playlistmodel),BorderLayout.PAGE_END);
+		this.playlistcontrolls = new PlaylistControlls(this.playlistmodel);
+		this.add(this.playlistcontrolls,BorderLayout.PAGE_END);
 //		this.setBackground(new Color(115, 164, 209));
 //		this.setSelectionBackground(new Color(115, 164, 209));
 //		this.setSelectionForeground(new Color(0, 0, 0));
@@ -60,7 +62,7 @@ public class Playlist extends JPanel implements ListCellRenderer<PlaylistTrack>,
 
 	public PlaylistTrack getCurrent() {
 		if(this.track == null) {
-			this.track = this.getNext();
+			this.track = this.getNext(false);
 		}
 		this.count();
 		return this.track;
@@ -85,7 +87,7 @@ public class Playlist extends JPanel implements ListCellRenderer<PlaylistTrack>,
 		return this.track;
 	}
 
-	public PlaylistTrack getNext() {
+	public PlaylistTrack getNext(boolean careOnRepeat) {
 		if(this.track == null) {
 			if(this.playlistmodel.getSize() > 0) {
 				this.track = this.playlistmodel.firstElement();
@@ -93,10 +95,24 @@ public class Playlist extends JPanel implements ListCellRenderer<PlaylistTrack>,
 				this.track = null;
 			}
 		} else {
-			if(this.playlistmodel.getSize() > this.playlistmodel.indexOf(this.track) + 1){
-				this.track = this.playlistmodel.getElementAt(this.playlistmodel.indexOf(this.track) + 1);
+			if(this.playlistcontrolls.getRepeat() != PlaylistControlls.REPEAT_ONE) {
+				if(this.playlistmodel.getSize() > this.playlistmodel.indexOf(this.track) + 1){
+					this.track = this.playlistmodel.getElementAt(this.playlistmodel.indexOf(this.track) + 1);
+				} else {
+					if(this.playlistcontrolls.getRepeat() == PlaylistControlls.REPEAT_ALL || careOnRepeat == false) {
+						this.track = this.playlistmodel.firstElement();
+					} else {
+						this.track = null;
+					}
+				}
 			} else {
-				this.track = null;
+				if(careOnRepeat == false) { //next button clicked
+					if(this.playlistmodel.getSize() > this.playlistmodel.indexOf(this.track) + 1){
+						this.track = this.playlistmodel.getElementAt(this.playlistmodel.indexOf(this.track) + 1);
+					} else {
+						this.track = this.playlistmodel.firstElement();
+					}
+				}
 			}
 		}
 		this.repaint();
