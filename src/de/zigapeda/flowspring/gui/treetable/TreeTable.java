@@ -1,12 +1,19 @@
 package de.zigapeda.flowspring.gui.treetable;
  
 import java.awt.Dimension;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DragGestureEvent;
+import java.awt.dnd.DragGestureListener;
+import java.awt.dnd.DragSource;
 
 import javax.swing.JTable;
 import javax.swing.tree.TreePath;
 
 import de.zigapeda.flowspring.controller.MediaLibraryListener;
 import de.zigapeda.flowspring.data.DataNode;
+import de.zigapeda.flowspring.data.PlaylistTrack;
+import de.zigapeda.flowspring.data.Title;
+import de.zigapeda.flowspring.data.YoutubeVideo;
 import de.zigapeda.flowspring.interfaces.TreeRow;
  
 public class TreeTable extends JTable {
@@ -39,7 +46,27 @@ public class TreeTable extends JTable {
  
         // Keine Abstaende.
         setIntercellSpacing(new Dimension(0, 0));
- 
+        
+        DragSource dragSource = DragSource.getDefaultDragSource();
+        dragSource.createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY, new DragGestureListener() {
+			@Override
+			public void dragGestureRecognized(DragGestureEvent dge) {
+//				TreeRow selrow = this.medialibrary.getValueAt(this.medialibrary.getSelectedRow());
+//				if(selrow != null) {
+//					if(selrow.getType() == TreeRow.Title) {
+//						Main.getWindow().getPlaylist().addTrack(new PlaylistTrack(selrow.getArtist() + " - " + selrow.getName(),selrow.getInt(),((Title)selrow).getPath()));
+//					
+				int row = TreeTable.this.getSelectedRow();
+				if(row != -1) {
+					TreeRow selrow = TreeTable.this.getValueAt(row);
+					if(selrow.getType() == TreeRow.Title) {
+						dge.startDrag(DragSource.DefaultCopyDrop, new PlaylistTrack(selrow.getId(), selrow.getArtist() + " - " + selrow.getName(),selrow.getInt(),((Title)selrow).getPath()));
+					} else if(selrow.getType() == TreeRow.YoutubeVideo) {
+						dge.startDrag(DragSource.DefaultCopyDrop, new PlaylistTrack(selrow.getName(),selrow.getInt(),((YoutubeVideo)selrow).getVideoUrl()));
+					}
+				}
+			}
+        });
     }
     
     public void setModel(AbstractTreeTableModel treeTableModel) {

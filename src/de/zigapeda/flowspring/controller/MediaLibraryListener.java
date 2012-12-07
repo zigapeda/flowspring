@@ -37,7 +37,7 @@ public class MediaLibraryListener implements MouseListener, KeyListener, TreeExp
 			TreeRow selrow = this.medialibrary.getValueAt(this.medialibrary.getSelectedRow());
 			if(selrow != null) {
 				if(selrow.getType() == TreeRow.Title) {
-					Main.getWindow().getPlaylist().addTrack(new PlaylistTrack(selrow.getArtist() + " - " + selrow.getName(),selrow.getInt(),((Title)selrow).getPath()));
+					Main.getWindow().getPlaylist().addTrack(new PlaylistTrack(selrow.getId(), selrow.getArtist() + " - " + selrow.getName(),selrow.getInt(),((Title)selrow).getPath()));
 				} else if(selrow.getType() == TreeRow.YoutubeVideo) {
 					Main.getWindow().getPlaylist().addTrack(new PlaylistTrack(selrow.getName(),selrow.getInt(),((YoutubeVideo)selrow).getVideoUrl()));
 				} else {
@@ -143,7 +143,7 @@ public class MediaLibraryListener implements MouseListener, KeyListener, TreeExp
 				if(this.medialibrary.getValueAt(this.medialibrary.getSelectedRow()).getType() == TreeRow.Title) {
 					int temp = this.medialibrary.getSelectedRow();
 					TreeRow selrow = this.medialibrary.getValueAt(temp);
-					Main.getWindow().getPlaylist().addTrack(new PlaylistTrack(selrow.getArtist() + " - " + selrow.getName(),selrow.getInt(),((Title)selrow).getPath()));
+					Main.getWindow().getPlaylist().addTrack(new PlaylistTrack(selrow.getId(), selrow.getArtist() + " - " + selrow.getName(),selrow.getInt(),((Title)selrow).getPath()));
 					this.medialibrary.getSelectionModel().setSelectionInterval(temp + 1, temp + 1);
 				} else if(this.medialibrary.getValueAt(this.medialibrary.getSelectedRow()).getType() == TreeRow.YoutubeVideo) {
 					int temp = this.medialibrary.getSelectedRow();

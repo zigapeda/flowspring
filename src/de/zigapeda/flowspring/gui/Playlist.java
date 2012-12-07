@@ -46,9 +46,6 @@ public class Playlist extends JPanel implements ListCellRenderer<PlaylistTrack>,
 		this.add(new JScrollPane(this.playlist));
 		this.playlistcontrolls = new PlaylistControlls(this.playlistmodel);
 		this.add(this.playlistcontrolls,BorderLayout.PAGE_END);
-//		this.setBackground(new Color(115, 164, 209));
-//		this.setSelectionBackground(new Color(115, 164, 209));
-//		this.setSelectionForeground(new Color(0, 0, 0));
 	}
 
 	public PlaylistTrack getCurrent() {

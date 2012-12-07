@@ -2,6 +2,8 @@ package de.zigapeda.flowspring.gui.dnd;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
@@ -23,20 +25,30 @@ public class PlaylistTransferHandler extends TransferHandler {
 	}
 	
 	public int getSourceActions(JComponent c) {
-		return MOVE;
+		return COPY_OR_MOVE;
 	}
 
     public boolean importData(TransferSupport support) {
-    	DefaultListModel<PlaylistTrack> playlistmodel = (DefaultListModel<PlaylistTrack>) this.list.getModel();
-    	PlaylistTrack plt = this.list.getSelectedValue();
-    	int insertAt = this.list.getDropLocation().getIndex();
-    	if(this.list.getSelectedIndex() < insertAt) {
-    		insertAt--;
-    	}
-    	playlistmodel.removeElement(plt);
-    	playlistmodel.insertElementAt(plt, insertAt);
-    	ListSelectionModel sm = this.list.getSelectionModel();
-    	sm.setSelectionInterval(insertAt, insertAt);
+    	try {
+			PlaylistTrack plt = (PlaylistTrack) support.getTransferable().getTransferData(PlaylistTrack.DATAFLAVOR);
+	    	DefaultListModel<PlaylistTrack> playlistmodel = (DefaultListModel<PlaylistTrack>) this.list.getModel();
+	    	int insertAt = this.list.getDropLocation().getIndex();
+	    	int indexInList = playlistmodel.indexOf(plt);
+	    	if(indexInList != -1) {
+		    	if(indexInList < insertAt) {
+		    		insertAt--;
+		    	}
+		    	playlistmodel.removeElement(plt);
+	    	}
+	    	playlistmodel.insertElementAt(plt, insertAt);
+	    	ListSelectionModel sm = this.list.getSelectionModel();
+	    	sm.setSelectionInterval(insertAt, insertAt);
+	    	return true;
+		} catch (UnsupportedFlavorException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
         return false;
     }
     
