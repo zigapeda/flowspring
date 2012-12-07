@@ -393,15 +393,14 @@ public class MainWindow extends JFrame implements ActionListener, TableColumnMod
 			this.setMinimumSize(new Dimension(605, 120));
 			this.setResizable(false);
 			this.setSize(600, 120);
-			this.left.remove(this.controlllayout);
 			this.oldpane = this.getContentPane();
 			this.setContentPane(this.controlllayout);
 		} else {
 			//small layout to big layout
 			this.setResizable(true);
 			this.setMinimumSize(new Dimension(800, 600));
-			this.left.add(this.controlllayout);
 			this.setContentPane(this.oldpane);
+			this.left.add(this.controlllayout,BorderLayout.PAGE_START);
 		}
 	}
 
