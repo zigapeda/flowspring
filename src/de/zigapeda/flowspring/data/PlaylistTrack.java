@@ -1,6 +1,13 @@
 package de.zigapeda.flowspring.data;
 
-public class PlaylistTrack {
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
+
+public class PlaylistTrack implements Transferable {
+	public static final DataFlavor DATAFLAVOR = new DataFlavor(PlaylistTrack.class, "PLAYLISTTRACK");
+	
 	private Integer id;
 	private String name;
 	private int duration;
@@ -34,5 +41,21 @@ public class PlaylistTrack {
 	
 	public String toString() {
 		return this.name;
+	}
+
+	@Override
+	public DataFlavor[] getTransferDataFlavors() {
+		return new DataFlavor[] {DATAFLAVOR};
+	}
+
+	@Override
+	public boolean isDataFlavorSupported(DataFlavor flavor) {
+		return flavor.equals(DATAFLAVOR);
+	}
+
+	@Override
+	public Object getTransferData(DataFlavor flavor)
+			throws UnsupportedFlavorException, IOException {
+		return this;
 	}
 }
