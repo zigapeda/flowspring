@@ -109,6 +109,7 @@ public class PlayerController implements MediaPlayerEventListener {
 	@Override
 	public void error(MediaPlayer arg0) {
 		// TODO Auto-generated method stub
+		System.out.println("vlc error event");
 	}
 
 	@Override
@@ -149,6 +150,7 @@ public class PlayerController implements MediaPlayerEventListener {
 	@Override
 	public void mediaMetaChanged(MediaPlayer arg0, int arg1) {
 		// TODO Auto-generated method stub
+		System.out.println("media meta changed");
 	}
 
 	@Override
@@ -229,6 +231,7 @@ public class PlayerController implements MediaPlayerEventListener {
 	@Override
 	public void titleChanged(MediaPlayer arg0, int arg1) {
 		// TODO Auto-generated method stub
+		System.out.println("title changed");
 	}
 
 	@Override
