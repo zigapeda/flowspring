@@ -1,12 +1,10 @@
 package de.zigapeda.flowspring.gui;
 
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Collections;
 
 import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -24,22 +22,31 @@ public class PlaylistControlls extends JPanel implements ActionListener {
 	public static final int REPEAT_ALL = 1;
 	public static final int REPEAT_ONE = 2;
 	
-	private DefaultListModel<PlaylistTrack> playlistmodel;
+	private Playlist playlist;
 	private int repeat = 0;
 	
-	public PlaylistControlls(DefaultListModel<PlaylistTrack> playlistmodel) {
-		this.playlistmodel = playlistmodel;
+	public PlaylistControlls(Playlist playlist) {
+		this.playlist = playlist;
 		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+		Insets i = new Insets(0, -4, 0, -4);
 		JButton shuffle = new JButton();
 		shuffle.setActionCommand("s");
 		shuffle.setIcon(new ImageIcon(Main.class.getClass().getResource("/de/zigapeda/flowspring/res/shuffle.png")));
 		shuffle.addActionListener(this);
+		shuffle.setMargin(i);
 		this.add(shuffle);
 		JButton repeat = new JButton();
 		repeat.setActionCommand("r");
 		repeat.setIcon(new ImageIcon(Main.class.getClass().getResource("/de/zigapeda/flowspring/res/repeatno.png")));
 		repeat.addActionListener(this);
+		repeat.setMargin(i);
 		this.add(repeat);
+		JButton addStream = new JButton();
+		addStream.setActionCommand("stream");
+		addStream.setIcon(new ImageIcon(Main.class.getClass().getResource("/de/zigapeda/flowspring/res/stream.png")));
+		addStream.addActionListener(this);
+		addStream.setMargin(i);
+		this.add(addStream);
 	}
 
 	@Override
@@ -51,19 +58,14 @@ public class PlaylistControlls extends JPanel implements ActionListener {
 			case "r": //repeat
 				this.repeat((JButton)e.getSource());
 				break;
+			case "stream":
+				this.addStream();
+				break;
 		}
 	}
 	
 	private void shuffle() {
-		ArrayList<PlaylistTrack> list = new ArrayList<>();
-		for(int i = 0; i < this.playlistmodel.getSize(); i++) {
-			list.add(this.playlistmodel.get(i));
-		}
-		Collections.shuffle(list);
-		this.playlistmodel.clear();
-		for(int i = 0; i < list.size(); i++) {
-			this.playlistmodel.addElement(list.get(i));
-		}
+		this.playlist.shuffle();
 	}
 	
 	private void repeat(JButton button) {
@@ -85,5 +87,9 @@ public class PlaylistControlls extends JPanel implements ActionListener {
 
 	public int getRepeat() {
 		return this.repeat;
+	}
+	
+	private void addStream() {
+		this.playlist.addTrack(new PlaylistTrack("Technobase.fm", 0, "http://listen.technobase.fm/tunein-mp3-pls"));
 	}
 }

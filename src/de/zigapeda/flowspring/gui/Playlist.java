@@ -6,6 +6,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import javax.swing.DefaultListModel;
 import javax.swing.DropMode;
@@ -44,7 +46,7 @@ public class Playlist extends JPanel implements ListCellRenderer<PlaylistTrack>,
 		this.playlist.addMouseListener(this);
 		this.setLayout(new BorderLayout());
 		this.add(new JScrollPane(this.playlist));
-		this.playlistcontrolls = new PlaylistControlls(this.playlistmodel);
+		this.playlistcontrolls = new PlaylistControlls(this);
 		this.add(this.playlistcontrolls,BorderLayout.PAGE_END);
 	}
 
@@ -212,6 +214,20 @@ public class Playlist extends JPanel implements ListCellRenderer<PlaylistTrack>,
 				}
 			}
 		}
+	}
+
+	public void shuffle() {
+		this.playlistmodel.removeElement(this.track);
+		ArrayList<PlaylistTrack> list = new ArrayList<>();
+		for(int i = 0; i < this.playlistmodel.getSize(); i++) {
+			list.add(this.playlistmodel.get(i));
+		}
+		Collections.shuffle(list);
+		this.playlistmodel.clear();
+		for(int i = 0; i < list.size(); i++) {
+			this.playlistmodel.addElement(list.get(i));
+		}
+		this.playlistmodel.add(0, this.track);
 	}
 	
 //	static class ListMoveDataFlavor extends DataFlavor {
